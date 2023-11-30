@@ -28,3 +28,4 @@ export default [
     ]
   }
 ] as Array<RouteConfigsTable>;
+// export default {};

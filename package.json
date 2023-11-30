@@ -29,6 +29,7 @@
     "not op_mini all"
   ],
   "dependencies": {
+    "@iconify-icons/material-symbols": "^1.2.58",
     "@pureadmin/descriptions": "^1.1.1",
     "@pureadmin/table": "^2.3.2",
     "@pureadmin/utils": "^1.9.6",
