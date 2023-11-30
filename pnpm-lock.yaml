@@ -81,9 +81,15 @@ devDependencies:
   '@commitlint/config-conventional':
     specifier: ^17.6.6
     version: 17.6.6
+  '@iconify-icons/bi':
+    specifier: ^1.2.19
+    version: registry.npmmirror.com/@iconify-icons/bi@1.2.19
   '@iconify-icons/ep':
     specifier: ^1.2.12
     version: 1.2.12
+  '@iconify-icons/lucide':
+    specifier: ^1.2.135
+    version: registry.npmmirror.com/@iconify-icons/lucide@1.2.135
   '@iconify-icons/ri':
     specifier: ^1.2.9
     version: 1.2.9
@@ -6806,6 +6812,22 @@ packages:
     dev: true
     optional: true
 
+  registry.npmmirror.com/@iconify-icons/bi@1.2.19:
+    resolution: {integrity: sha512-XXBRRsqgQqACKFVs8Caludf9w4EimplsCJ0rXmKDhqalzD9IvCqMae5TZDHPE1FkeqbxRGq6awxLSxnwdAIC+Q==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/@iconify-icons/bi/-/bi-1.2.19.tgz}
+    name: '@iconify-icons/bi'
+    version: 1.2.19
+    dependencies:
+      '@iconify/types': registry.npmmirror.com/@iconify/types@2.0.0
+    dev: true
+
+  registry.npmmirror.com/@iconify-icons/lucide@1.2.135:
+    resolution: {integrity: sha512-t2Dya1a+PInBmHScbbGyseze7rrGHRW/dYF4GTR6f51N08sCg6KrtE4zmplnZE1ul2NyC+sxKpXRCv48hEgaQw==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/@iconify-icons/lucide/-/lucide-1.2.135.tgz}
+    name: '@iconify-icons/lucide'
+    version: 1.2.135
+    dependencies:
+      '@iconify/types': registry.npmmirror.com/@iconify/types@2.0.0
+    dev: true
+
   registry.npmmirror.com/@iconify-icons/material-symbols@1.2.58:
     resolution: {integrity: sha512-v0ZfPXlmDcDPCejxhg5h2eHCEHClrpn+i44Ev766vkzPIEFRdgT+YK942KzyqBpH0RhKJfel4OZdL1DY1oa5Qg==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/@iconify-icons/material-symbols/-/material-symbols-1.2.58.tgz}
     name: '@iconify-icons/material-symbols'
@@ -6818,7 +6840,6 @@ packages:
     resolution: {integrity: sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/@iconify/types/-/types-2.0.0.tgz}
     name: '@iconify/types'
     version: 2.0.0
-    dev: false
 
   registry.npmmirror.com/@nuxt/kit@3.6.0:
     resolution: {integrity: sha512-rqQYyWlhE42oWRQNR58KU1JYhoWryN78x8eYzFTHgalfpMjtPqZv2j9K4+hFRk0XLRUKnut4tE/3+UYyZ7ybVw==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/@nuxt/kit/-/kit-3.6.0.tgz}

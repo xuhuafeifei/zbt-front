@@ -181,6 +181,7 @@ router.beforeEach((to: ToRouteType, _from, next) => {
       toCorrectRoute();
     }
   } else {
+    // next({ path: "/#/infoAll" });
     if (to.path !== "/login") {
       if (whiteList.indexOf(to.path) !== -1) {
         next();

@@ -8,7 +8,17 @@ import { addIcon } from "@iconify/vue/dist/offline";
 import HomeFilled from "@iconify-icons/ep/home-filled";
 import InformationLine from "@iconify-icons/ri/information-line";
 import Lollipop from "@iconify-icons/ep/lollipop";
+import personPlay from "@iconify-icons/material-symbols/person-play";
+import pencilLine from "@iconify-icons/lucide/pencil-line";
+import boxFill from "@iconify-icons/bi/box-fill";
+import giftFill from "@iconify-icons/bi/gift-fill";
+import settingIcon from "@iconify-icons/ep/setting";
 
 addIcon("homeFilled", HomeFilled);
 addIcon("informationLine", InformationLine);
 addIcon("lollipop", Lollipop);
+addIcon("personPlay", personPlay);
+addIcon("pencilLine", pencilLine);
+addIcon("boxFill", boxFill);
+addIcon("giftFill", giftFill);
+addIcon("settingIcon", settingIcon);
