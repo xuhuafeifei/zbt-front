@@ -63,16 +63,16 @@ export default {
         icon: "pencilLine"
       },
       children: [
-        {
-          path: "/activity/activitySetting",
-          name: "activityActivitySetting",
-          component: () => import("@/views/activity/setting/activity.vue"),
-          meta: {
-            title: "活动设置",
-            showLink: VITE_HIDE_HOME === "true" ? false : true,
-            icon: "pencilLine"
-          }
-        },
+        // {
+        //   path: "/activity/activitySetting",
+        //   name: "activityActivitySetting",
+        //   component: () => import("@/views/activity/setting/activity.vue"),
+        //   meta: {
+        //     title: "活动设置",
+        //     showLink: VITE_HIDE_HOME === "true" ? false : true,
+        //     icon: "pencilLine"
+        //   }
+        // },
         {
           path: "/activity/materialSetting",
           name: "activityMaterialSetting",

@@ -8,7 +8,8 @@ import {
   ElOption,
   ElButton,
   ElTable,
-  ElTableColumn
+  ElTableColumn,
+  ElMessage
 } from "element-plus";
 import { useRouter } from "vue-router";
 
@@ -44,9 +45,24 @@ const tableData = ref([
   // ...其他数据项
 ]);
 
-const handleClick = row => {
+const handleClickView = row => {
   console.log("click");
   router.push(`/activity/orderDetail/${row.id}`);
+};
+
+const handleClickPassDraft = row => {
+  console.log(row);
+  ElMessage.error("暂无原型图");
+};
+
+const handleClickPassSouceFile = row => {
+  console.log(row);
+  ElMessage.error("暂无原型图");
+};
+
+const handleClickTakeOrder = row => {
+  console.log(row);
+  ElMessage.error("暂无原型图");
 };
 </script>
 
@@ -90,16 +106,28 @@ const handleClick = row => {
             link
             type="primary"
             size="small"
-            @click="handleClick(scope.row)"
+            @click="handleClickView(scope.row)"
             >查看</el-button
           >
-          <el-button link type="primary" size="small" @click="handleClick"
+          <el-button
+            link
+            type="primary"
+            size="small"
+            @click="handleClickTakeOrder(scope.row)"
             >接单</el-button
           >
-          <el-button link type="primary" size="small" @click="handleClick"
+          <el-button
+            link
+            type="primary"
+            size="small"
+            @click="handleClickPassDraft(scope.row)"
             >传初稿</el-button
           >
-          <el-button link type="primary" size="small" @click="handleClick"
+          <el-button
+            link
+            type="primary"
+            size="small"
+            @click="handleClickPassSouceFile(scope.row)"
             >传源文件</el-button
           >
         </template>

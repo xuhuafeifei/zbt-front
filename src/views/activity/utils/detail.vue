@@ -4,15 +4,17 @@ import { ElImage } from "element-plus";
 
 // 假设后端返回的数据格式如下
 const obj = {
-  id: 1,
-  imageUrl:
-    "https://feigebuge.oss-cn-beijing.aliyuncs.com/QQ%E5%9B%BE%E7%89%8720230819130111.gif", // 图片的URL
-  subtitle: "文档副标题",
-  date: "某年某月某日",
-  type: "文档",
-  creator: "超级用户",
-  lastUpdateTime: "2023/10/31 16:20:20",
-  remark: "超级管理员回访"
+  id: "1",
+  picture:
+    "https://feigebuge.oss-cn-beijing.aliyuncs.com/QQ%E5%9B%BE%E7%89%8720230819130111.gif",
+  activityName: "双十一大促",
+  materialType: "海报",
+  use: "-",
+  festival: "-",
+  specialTopic: "双11",
+  brand: "通用",
+  uploadUser: "运营部门",
+  uploadDate: "2023/10/21"
 };
 const fetchDocumentList = async () => {
   // 这里应该是异步调用API获取数据的代码
@@ -47,22 +49,24 @@ onMounted(async () => {
       <el-card class="box-card">
         <el-row>
           <el-image
-            :src="document.imageUrl"
+            :src="document.picture"
             fit="cover"
             style="document-image"
           />
           <div>
             <div style="document-meta p">
-              <p><strong>副标题类型：</strong>{{ document.subtitle }}</p>
-              <p><strong>日期：</strong>{{ document.date }}</p>
-              <p><strong>类型：</strong>{{ document.type }}</p>
-              <p><strong>创建：</strong>{{ document.creator }}</p>
-              <p><strong>上代时间：</strong>{{ document.lastUpdateTime }}</p>
-              <p><strong>上代备注：</strong>{{ document.remark }}</p>
+              <p><strong>活动名称：</strong>{{ document.activityName }}</p>
+              <p><strong>物料类型：</strong>{{ document.materialType }}</p>
+              <p><strong>用途：</strong>{{ document.use }}</p>
+              <p><strong>节日：</strong>{{ document.festival }}</p>
+              <p><strong>专题：</strong>{{ document.specailTopic }}</p>
+              <p><strong>品牌：</strong>{{ document.brand }}</p>
+              <p><strong>上传时间：</strong>{{ document.uploadDate }}</p>
+              <p><strong>上传者：</strong>{{ document.uploadUser }}</p>
             </div>
             <div class="document-actions">
-              <el-button type="primary">提交</el-button>
-              <el-button>下载最新文件</el-button>
+              <el-button type="primary">选他</el-button>
+              <el-button>下载源文件</el-button>
             </div>
           </div>
         </el-row>
