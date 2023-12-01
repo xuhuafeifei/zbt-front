@@ -156,13 +156,14 @@
   </el-row>
 </template>
 
+
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { ElImage } from "element-plus";
 import { ElCard, ElInput, ElDatePicker } from "element-plus";
 
 import { ElScrollbar } from "element-plus";
-import OperateRecord from "./utils/operateRecord.vue";
+import OperateRecord from "./component/operateRecord.vue";
 
 const obj = {
   id: "1",

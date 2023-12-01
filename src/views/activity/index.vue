@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import InfoAll from "./utils/infoAll.vue";
-import Detail from "./utils/detail.vue";
+import InfoAll from "./component/infoAll.vue";
+import Detail from "./component/detail.vue";
 
 const checkboxMaterial = ref(["全部"]);
 const checkboxUse = ref(["招聘"]);

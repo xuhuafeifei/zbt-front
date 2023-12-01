@@ -11,7 +11,7 @@ import {
   ElImage
 } from "element-plus";
 
-import ActivityForm from "./manage/activityForm.vue";
+import ActivityForm from "./component/activityForm.vue";
 
 const filters = ref({
   department: ""
