@@ -10,7 +10,9 @@ import {
   ElTable,
   ElTableColumn
 } from "element-plus";
+import { useRouter } from "vue-router";
 
+const router = useRouter();
 const searchText = ref("");
 const selected = ref("");
 const options = ref([
@@ -42,8 +44,9 @@ const tableData = ref([
   // ...其他数据项
 ]);
 
-const handleClick = () => {
+const handleClick = row => {
   console.log("click");
+  router.push(`/activity/orderDetail/${row.id}`);
 };
 </script>
 
@@ -82,8 +85,12 @@ const handleClick = () => {
       <el-table-column prop="creationDate" label="创建时间" width="160" />
       <el-table-column prop="completionDate" label="完成时间" width="160" />
       <el-table-column fixed="right" label="操作" width="250">
-        <template #default>
-          <el-button link type="primary" size="small" @click="handleClick"
+        <template #default="scope">
+          <el-button
+            link
+            type="primary"
+            size="small"
+            @click="handleClick(scope.row)"
             >查看</el-button
           >
           <el-button link type="primary" size="small" @click="handleClick"
