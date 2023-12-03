@@ -23,6 +23,16 @@ export default {
       }
     },
     {
+      path: "/gift/orderDetail/:id",
+      name: "orderDetail",
+      component: () => import("@/views/gift/orderDetail.vue"),
+      meta: {
+        title: "订单详情",
+        showLink: false,
+        icon: "pencilLine"
+      }
+    },
+    {
       path: "/gift/shopBus",
       name: "shopBus",
       component: () => import("@/views/gift/shopBus.vue"),
@@ -55,12 +65,45 @@ export default {
     {
       path: "/gift/settings",
       name: "settings",
-      component: () => import("@/views/gift/setting.vue"),
+      component: Layout,
+      redirect: "/gift/classifySetting",
       meta: {
         title: "礼品库设置",
         showLink: VITE_HIDE_HOME === "true" ? false : true,
         icon: "pencilLine"
-      }
+      },
+      children: [
+        {
+          path: "/gift/classifySetting",
+          name: "giftClassifySetting",
+          component: () => import("@/views/gift/setting/classify.vue"),
+          meta: {
+            title: "分类设置",
+            showLink: VITE_HIDE_HOME === "true" ? false : true,
+            icon: "pencilLine"
+          }
+        },
+        {
+          path: "/gift/useSetting",
+          name: "giftUseSetting",
+          component: () => import("@/views/gift/setting/use.vue"),
+          meta: {
+            title: "用途设置",
+            showLink: VITE_HIDE_HOME === "true" ? false : true,
+            icon: "pencilLine"
+          }
+        },
+        {
+          path: "/gift/priceSetting",
+          name: "giftPriceSetting",
+          component: () => import("@/views/gift/setting/price.vue"),
+          meta: {
+            title: "价格设置",
+            showLink: VITE_HIDE_HOME === "true" ? false : true,
+            icon: "pencilLine"
+          }
+        }
+      ]
     }
   ]
 } as RouteConfigsTable;

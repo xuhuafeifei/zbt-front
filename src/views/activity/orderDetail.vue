@@ -156,7 +156,6 @@
   </el-row>
 </template>
 
-
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { ElImage } from "element-plus";
@@ -193,6 +192,7 @@ const scroll = ({ scrollTop }) => {
 const formatTooltip = (value: number) => {
   return `${value} px`;
 };
+
 const activeStep = ref(2); // 活跃的步骤，可以根据需要动态改变
 const orderForm = ref({
   idNumber: "12345678910", // 证件编号
