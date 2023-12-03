@@ -97,6 +97,7 @@ export default {
           path: "/gift/priceSetting",
           name: "giftPriceSetting",
           component: () => import("@/views/gift/setting/price.vue"),
+          // component: () => import("@/views/gift/component/giftForm.vue"),
           meta: {
             title: "价格设置",
             showLink: VITE_HIDE_HOME === "true" ? false : true,
