@@ -1,39 +1,59 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, reactive } from "vue";
 import { ElImage } from "element-plus";
+import { ActivityDto } from "@/api/activity/activity";
+import { ElMessage } from "element-plus";
+import { OrderEntity, saveOrder } from "@/api/activity/order";
 
-// 假设后端返回的数据格式如下
-const obj = {
-  id: "1",
-  picture:
-    "https://feigebuge.oss-cn-beijing.aliyuncs.com/QQ%E5%9B%BE%E7%89%8720230819130111.gif",
-  activityName: "双十一大促",
-  materialType: "海报",
-  use: "-",
-  festival: "-",
-  specialTopic: "双11",
-  brand: "通用",
-  uploadUser: "运营部门",
-  uploadDate: "2023/10/21"
-};
-const fetchDocumentList = async () => {
-  // 这里应该是异步调用API获取数据的代码
-  // 暂时使用静态数据进行演示
-  return [
-    // ...更多的列表项
-    obj,
-    obj,
-    obj
-  ];
-};
-
-const documentList = ref([]); // 存放文档列表数据
 const scrollContainer = ref(null); // 用于引用滚动容器的DOM元素
 
-onMounted(async () => {
-  documentList.value = await fetchDocumentList();
-  // 如果需要对滚动容器进行额外的操作或滚动监听，可以在这里实现
-});
+onMounted(async () => {});
+
+const dataList = ref<Array<ActivityDto>>([]);
+// 初始化组件数据
+function init(newData: Array<ActivityDto>) {
+  dataList.value = newData;
+}
+
+defineExpose({ init });
+
+const chooseDialogVisible = ref(false);
+
+const downloadDialogVisible = ref(false);
+
+const handleChoose = () => {
+  // 设置表单数据
+  formData.setValueFromActivityDto(dataList.value[0]);
+  console.log(formData);
+  chooseDialogVisible.value = true;
+};
+
+const handleDownload = () => {
+  downloadDialogVisible.value = true;
+};
+
+/** 下载文件 */
+const download = () => {
+  const data = dataList.value[0];
+  // ElMessage.info("下载图片");
+  // data.picturesUrl.forEach(item => {
+  //   window.location.href = item;
+  // });
+  ElMessage.info("下载源文件");
+  data.sourcefilesUrl.forEach(item => {
+    window.location.href = item.url;
+  });
+};
+
+/** 下订单 */
+const takeOrder = () => {
+  const entity = new OrderEntity();
+  saveOrder().then(res => {
+    console.log(res);
+  });
+};
+
+const formData = reactive(new OrderEntity());
 </script>
 
 <template>
@@ -41,36 +61,99 @@ onMounted(async () => {
     <h2>双十一珠宝活动详情</h2>
     <el-divider />
     <!-- 文档列表开始 -->
-    <div
-      v-for="document in documentList"
-      :key="document.id"
-      class="document-item"
-    >
+    <div v-for="(item, index) in dataList" :key="index" class="document-item">
       <el-card class="box-card">
         <el-row>
           <el-image
-            :src="document.picture"
+            :src="item.picturesUrl.length === 0 ? '' : item.picturesUrl[0].url"
             fit="cover"
             style="document-image"
           />
           <div>
             <div style="document-meta p">
-              <p><strong>活动名称：</strong>{{ document.activityName }}</p>
-              <p><strong>物料类型：</strong>{{ document.materialType }}</p>
-              <p><strong>用途：</strong>{{ document.use }}</p>
-              <p><strong>节日：</strong>{{ document.festival }}</p>
-              <p><strong>专题：</strong>{{ document.specailTopic }}</p>
-              <p><strong>品牌：</strong>{{ document.brand }}</p>
-              <p><strong>上传时间：</strong>{{ document.uploadDate }}</p>
-              <p><strong>上传者：</strong>{{ document.uploadUser }}</p>
+              <p><strong>活动名称：</strong>{{ item.name }}</p>
+              <p><strong>物料类型：</strong>{{ item.material }}</p>
+              <p><strong>用途：</strong>{{ item.useCol }}</p>
+              <p><strong>节日：</strong>{{ item.festival }}</p>
+              <p><strong>专题：</strong>{{ item.topic }}</p>
+              <p><strong>品牌：</strong>{{ item.brand }}</p>
+              <p><strong>上传时间：</strong>{{ item.uploadTime }}</p>
+              <p><strong>上传者：</strong>{{ item.uploader }}</p>
             </div>
             <div class="document-actions">
-              <el-button type="primary">选他</el-button>
-              <el-button>下载源文件</el-button>
+              <el-button type="primary" @click="handleChoose">选他</el-button>
+              <el-button type="primary" @click="handleDownload"
+                >下载源文件</el-button
+              >
             </div>
           </div>
         </el-row>
       </el-card>
+      <!-- 选他弹框 -->
+      <el-dialog
+        v-model="chooseDialogVisible"
+        title="系统提示"
+        width="30%"
+        draggable
+      >
+        <el-text>是否选择该活动设计方案</el-text>
+        <el-divider />
+        <el-form :model="formData">
+          <el-form-item label="订单时间">
+            <el-date-picker
+              type="datetime"
+              v-model="formData.orderTime"
+              disabled
+            />
+          </el-form-item>
+          <el-form-item label="需求时间">
+            <el-date-picker type="datetime" v-model="formData.demandTime" />
+          </el-form-item>
+          <el-form-item label="需求门店">
+            <el-input v-model="formData.demandStore" />
+          </el-form-item>
+          <el-form-item label="物料">
+            <el-input v-model="formData.material" disabled />
+          </el-form-item>
+          <el-form-item label="用途">
+            <el-input v-model="formData.useCol" disabled />
+          </el-form-item>
+          <el-form-item label="节日">
+            <el-input v-model="formData.festival" disabled />
+          </el-form-item>
+          <el-form-item label="专题">
+            <el-input v-model="formData.topic" disabled />
+          </el-form-item>
+          <el-form-item label="品牌">
+            <el-input v-model="formData.brand" disabled />
+          </el-form-item>
+        </el-form>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button @click="takeOrder">确定</el-button>
+            <el-button type="primary" @click="chooseDialogVisible = false">
+              取消
+            </el-button>
+          </span>
+        </template>
+      </el-dialog>
+      <!-- 下载弹框 -->
+      <el-dialog
+        v-model="downloadDialogVisible"
+        title="系统提示"
+        width="30%"
+        draggable
+      >
+        <span>是否下载该活动文件</span>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button @click="download">确定</el-button>
+            <el-button type="primary" @click="downloadDialogVisible = false">
+              取消
+            </el-button>
+          </span>
+        </template>
+      </el-dialog>
     </div>
     <!-- 文档列表结束 -->
   </div>
@@ -109,7 +192,7 @@ onMounted(async () => {
 
 .box-card {
   width: auto;
-  max-height: 1000px; /* 根据需要调整 */
+  max-height: 600px; /* 根据需要调整 */
   overflow-y: auto;
 }
 </style>

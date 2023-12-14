@@ -12,9 +12,8 @@ import {
 import { ElMessage } from "element-plus";
 import UploadPict from "@/components/Pict/uploadPict.vue";
 import UploadFile from "@/components/File/uploadFile.vue";
-import { deleteFileList, uploadFileList } from "@/api/file";
-import { convertDateToString, sleep } from "@/api/utils";
-import type { UploadProps, UploadUserFile } from "element-plus";
+import { uploadFileList } from "@/api/file";
+import { sleep } from "@/api/utils";
 
 const pictType = "pict";
 const fileType = "sourcefile";
@@ -188,10 +187,12 @@ const submitFile = async () => {
   }
 };
 
+// 关闭表单前, 刷新父组件数据
 const beforeClose = async (done: () => void) => {
   // 通知父组件刷新数据列表
   emit("refreshDataList");
   sleep(300);
+  // 关闭表单
   done();
 };
 </script>

@@ -1,15 +1,20 @@
 <script setup lang="ts">
-import { ref, onMounted, reactive } from "vue";
+import { ref, onMounted, nextTick } from "vue";
 import InfoAll from "./component/infoAll.vue";
 import Detail from "./component/detail.vue";
-import { getActivityOptionDto } from "@/api/activity/activity";
+import { ActivityDto, getActivityOptionDto } from "@/api/activity/activity";
 import { ElMessage } from "element-plus";
+import {
+  ConditionActivity,
+  getActivityPageList,
+  getActivityPageListWithCondition
+} from "@/api/activity/manage";
 
-const checkboxMaterial = ref(["全部"]);
-const checkboxUse = ref(["招聘"]);
-const checkboxFestival = ref(["中秋节"]);
-const checkboxSpecialTopic = ref(["双11预热"]);
-const checkboxBrand = ref(["通用"]);
+const checkboxMaterial = ref([""]);
+const checkboxUse = ref([""]);
+const checkboxFestival = ref([""]);
+const checkboxSpecialTopic = ref([""]);
+const checkboxBrand = ref([""]);
 
 // 判断是否是详细展示界面
 const isDetail = ref(false);
@@ -28,9 +33,7 @@ const pageIndex = ref(1);
 const pageSize = ref(10);
 const totalPage = ref(0);
 
-const getDataList = val => {
-  console.log(val);
-};
+const dataList = ref<Array<ActivityDto>>([]);
 
 /** 获取选项数据 */
 const getOptionList = async () => {
@@ -63,7 +66,35 @@ const currentChangeHandle = val => {
 
 onMounted(() => {
   getOptionList();
+  getDataList();
 });
+
+const getDataList = async () => {
+  const ca = new ConditionActivity();
+  ca.page = pageIndex.value;
+  ca.limit = pageSize.value;
+  ca.brand = checkboxBrand.value;
+  ca.material = checkboxMaterial.value;
+  ca.useCol = checkboxUse.value;
+  ca.festival = checkboxFestival.value;
+  ca.topic = checkboxSpecialTopic.value;
+
+  console.log(ca);
+  const res = await getActivityPageListWithCondition(ca);
+  console.log(res);
+  if (res.code === 0) {
+    dataList.value = res.data.list;
+    nextTick(() => {
+      detailRef.value.init(dataList.value);
+      infoAllRef.value.init(dataList.value);
+    });
+  } else {
+    ElMessage.error("数据获取失败: " + res.msg);
+  }
+};
+
+const infoAllRef = ref(null);
+const detailRef = ref(null);
 </script>
 
 <template>
@@ -172,9 +203,23 @@ onMounted(() => {
       active-text="详细展示"
       inactive-text="简略展示"
     />
+    <el-button @click="getDataList">查询</el-button>
     <br />
-    <InfoAll v-show="!isDetail" />
-    <Detail v-show="isDetail" />
+    <div>
+      <InfoAll v-show="!isDetail" ref="infoAllRef" />
+    </div>
+    <div>
+      <Detail v-show="isDetail" ref="detailRef" />
+    </div>
+    <el-pagination
+      @size-change="sizeChangeHandle"
+      @current-change="currentChangeHandle"
+      :current-page="pageIndex"
+      :page-sizes="[10, 20, 50, 100]"
+      :page-size="pageSize"
+      :total="totalPage"
+      layout="total, sizes, prev, pager, next, jumper"
+    />
   </div>
 </template>
 

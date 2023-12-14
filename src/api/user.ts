@@ -1,4 +1,5 @@
 import { http } from "@/utils/http";
+import { activityUrlApi } from "./utils";
 
 export type UserResult = {
   success: boolean;
@@ -13,6 +14,10 @@ export type UserResult = {
     refreshToken: string;
     /** `accessToken`的过期时间（格式'xxxx/xx/xx xx:xx:xx'） */
     expires: Date;
+    /** 用户id */
+    id: number;
+    /** 用户姓名 */
+    name: string;
   };
 };
 
@@ -25,12 +30,18 @@ export type RefreshTokenResult = {
     refreshToken: string;
     /** `accessToken`的过期时间（格式'xxxx/xx/xx xx:xx:xx'） */
     expires: Date;
+    /** 用户id */
+    id: number;
   };
 };
 
 /** 登录 */
 export const getLogin = (data?: object) => {
-  return http.request<UserResult>("post", "/login", { data });
+  const { username, password } = data;
+  return http.request<UserResult>(
+    "get",
+    activityUrlApi(`user/login?username=${username}&password=${password}`)
+  );
 };
 
 /** 刷新token */

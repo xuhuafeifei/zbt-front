@@ -1,123 +1,72 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ActivityDto } from "@/api/activity/activity";
+import { reactive, ref, nextTick } from "vue";
+import Detail from "./detail.vue";
 
-const obj = {
-  id: 1,
-  sportrait:
-    "https://feigebuge.oss-cn-beijing.aliyuncs.com/QQ%E5%9B%BE%E7%89%8720230819130111.gif"
-};
-
-const List = ref([obj, obj, obj, obj, obj, obj, obj, obj, obj, obj, obj, obj]);
+// let dataList = reactive([new ActivityDto()]);
 const dataList = ref([]);
-const pageIndex = ref(1);
-const pageSize = ref(10);
-const totalPage = ref(0);
+const dialogVisible = ref(false);
+const detailSecRef = ref(null);
 
-const getDataList = val => {
-  console.log(val);
-};
+// 初始化组件数据
+function init(newData: Array<ActivityDto>) {
+  console.log(newData);
+  dataList.value = newData;
+  console.log(dataList);
+}
 
-// 每页数
-const sizeChangeHandle = val => {
-  pageSize.value = val;
-  pageIndex.value = 1;
-  // getDataList(className.value);
-};
-// 当前页
-const currentChangeHandle = val => {
-  pageIndex.value = val;
-  // getDataList(className.value);
+defineExpose({ init });
+
+const detail = item => {
+  console.log(item);
+  dialogVisible.value = true;
+  nextTick(() => {
+    console.log(detailSecRef);
+    detailSecRef.value.init([item]);
+  });
 };
 </script>
 
 <template>
   <div>
-    <el-row :gutter="5" class="el-row">
-      <el-card v-for="(item, index) in List" :key="item.id" class="item">
-        <div class="img_box"><img :src="item.sportrait" alt="" /></div>
-        <span :style="{ color: 'red' }" />
-      </el-card>
-    </el-row>
-    <el-pagination
-      @size-change="sizeChangeHandle"
-      @current-change="currentChangeHandle"
-      :current-page="pageIndex"
-      :page-sizes="[10, 20, 50, 100]"
-      :page-size="pageSize"
-      :total="totalPage"
-      layout="total, sizes, prev, pager, next, jumper"
-    />
+    <el-card>
+      <el-row>
+        <el-card v-for="(item, index) in dataList" :key="index" class="card">
+          <img
+            :src="item.picturesUrl.length === 0 ? '' : item.picturesUrl[0].url"
+          />
+          <div style="padding: 1px">
+            <span>{{ item.name }}</span>
+            <div class="time">{{ item.uploadTime }}</div>
+            <div class="time">{{ item.applicableGrade }}</div>
+            <el-button text type="primary" @click="detail(item)"
+              >查看详情</el-button
+            >
+          </div>
+        </el-card>
+      </el-row>
+    </el-card>
+    <el-dialog v-model="dialogVisible" width="60%">
+      <Detail v-if="dialogVisible" ref="detailSecRef" />
+    </el-dialog>
   </div>
 </template>
 
 <style lang="scss" scoped>
-.el-card {
-  min-width: 100xp;
-  min-height: 10xp;
-  height: 100%;
-  margin-right: 20px;
-  transition: all 0.5s;
-}
-
-* {
-  margin: 1;
-  padding: 10;
-  list-style: none;
-}
-
-body {
-  background: #e3e4e5;
-  margin: auto;
-}
-
-#app {
-  width: 1000px;
-  margin-left: auto;
-  margin-right: auto;
-  overflow: hidden;
-}
-
-.item {
-  float: left;
-  width: 200px;
-  height: 250px;
-  margin: 0 5px 8px;
-  text-align: center;
-  background: #fff;
-}
-
-.item .img_box {
-  width: 120px;
-  height: 120px;
-  margin: 30px auto;
-}
-
-.img_box img {
-  width: 100%;
-  height: 100%;
-}
-
-.item p {
+.time {
   font-size: 12px;
-  line-height: 20px;
-  height: 40px;
-  padding: 0 10px;
-  display: -webkit-box;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  color: #999;
 }
 
-.more2_info_self {
-  background-color: #e1251b;
-  border-radius: 2px;
-  color: #fff;
-  padding: 0 5px;
-  margin-right: 4px;
-  line-height: 16px;
-  height: 16px;
-  font-size: 12px;
-  font-style: normal;
+.card {
+  width: 23%;
+  height: 400px;
+  margin-right: 19px;
+  margin-bottom: 20px;
+}
+
+.button {
+  padding: 0;
+  min-height: auto;
 }
 </style>

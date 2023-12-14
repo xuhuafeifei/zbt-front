@@ -33,3 +33,8 @@ export type PageUtils<T> = {
   /** 列表数据 */
   list: Array<T>;
 };
+
+export const getStoreUser = () => {
+  const res = sessionStorage.getItem("user-info");
+  return JSON.parse(res);
+};

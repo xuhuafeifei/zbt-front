@@ -27,6 +27,14 @@ export const useUserStore = defineStore({
     SET_ROLES(roles: Array<string>) {
       this.roles = roles;
     },
+    /** 存储用户id */
+    SET_ID(id: number) {
+      this.id = id;
+    },
+    /** 存储用户姓名 */
+    SET_NAME(name: string) {
+      this.name = name;
+    },
     /** 登入 */
     async loginByUsername(data) {
       return new Promise<UserResult>((resolve, reject) => {
