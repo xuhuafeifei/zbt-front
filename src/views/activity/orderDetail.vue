@@ -118,14 +118,7 @@
           沟通记录
         </div>
         <!-- 输入框 -->
-        <div class="input-area">
-          <el-input
-            type="textarea"
-            :rows="5"
-            placeholder="请输入文本（自定义文本）"
-          />
-        </div>
-
+        <FullText high="300px" />
         <!-- 操作按钮 -->
         <div class="action-buttons">
           <el-button type="primary">提交</el-button>
@@ -133,8 +126,8 @@
       </el-card>
 
       <!--回复消息展示-->
-      <el-card style="height: 800px">
-        <el-scrollbar ref="scrollbarRef" height="400px" always @scroll="scroll">
+      <el-card style="height: 600px">
+        <el-scrollbar height="400px">
           <div ref="innerRef" class="message-box">
             <p
               v-for="operateRecord in operateRecordList"
@@ -145,12 +138,6 @@
             </p>
           </div>
         </el-scrollbar>
-        <el-slider
-          v-model="value"
-          :max="max"
-          :format-tooltip="formatTooltip"
-          @input="inputSlider"
-        />
       </el-card>
     </el-col>
   </el-row>
@@ -163,6 +150,7 @@ import { ElCard, ElInput, ElDatePicker } from "element-plus";
 
 import { ElScrollbar } from "element-plus";
 import OperateRecord from "./component/operateRecord.vue";
+import FullText from "@/components/FullText/fulltext.vue";
 
 const obj = {
   id: "1",
@@ -196,7 +184,7 @@ const formatTooltip = (value: number) => {
 const activeStep = ref(2); // 活跃的步骤，可以根据需要动态改变
 const orderForm = ref({
   idNumber: "12345678910", // 证件编号
-  submissionDate: "2023/10/31", // 提交时间
+  submissionDate: "2023-9-30", // 提交时间
   demandStore: "正荣张万福", // 需要门店
   demandDate: "2023/11/05", // 需求时间
   festival: "-", // 节日

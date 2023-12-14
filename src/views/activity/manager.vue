@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, nextTick } from "vue";
+import { ref, Ref, nextTick, onMounted } from "vue";
 import {
   ElTable,
   ElTableColumn,
@@ -8,32 +8,19 @@ import {
   ElOption,
   ElRow,
   ElCol,
-  ElImage
+  ElImage,
+  ElMessage
 } from "element-plus";
 
 import ActivityForm from "./component/activityForm.vue";
+import { ActivityDto } from "@/api/activity/activity";
+import { getActivityPageList } from "@/api/activity/manage";
 
 const filters = ref({
   department: ""
 });
 
-const obj = {
-  id: "1",
-  picture:
-    "https://feigebuge.oss-cn-beijing.aliyuncs.com/QQ%E5%9B%BE%E7%89%8720230819130111.gif",
-  activityName: "双十一大促",
-  materialType: "海报",
-  use: "-",
-  festival: "-",
-  specialTopic: "双11",
-  brand: "通用",
-  applicableGrade: "黄金会员",
-  uploadUser: "运营部门",
-  uploadDate: "2023/10/21",
-  sourceFile: "无"
-};
-
-const tableData = ref([obj, obj]);
+const tableData = ref<Array<ActivityDto>>([]);
 
 // 指向子组件
 const activityFormRef = ref(null);
@@ -61,6 +48,45 @@ const handleAdd = () => {
     activityFormRef.value.init();
   });
 };
+
+onMounted(() => {
+  getDataList();
+});
+
+const pageIndex = ref(1);
+const pageSize = ref(10);
+const totalPage = ref(0);
+
+const getDataList = () => {
+  getActivityPageList(pageIndex.value, pageSize.value).then(res => {
+    console.log(res);
+    if (res.code !== 0) {
+      ElMessage.error("数据获取失败:" + res.msg);
+      return;
+    }
+    totalPage.value = res.data.totalPage;
+    tableData.value = res.data.list;
+  });
+};
+
+// 每页数
+const sizeChangeHandle = val => {
+  pageSize.value = val;
+  pageIndex.value = 1;
+};
+// 当前页
+const currentChangeHandle = val => {
+  pageIndex.value = val;
+  // getDataList(className.value);
+};
+
+const sourceFilesFormatter = (row, column, cellValue, index) => {
+  if (cellValue.length === 0) {
+    return "无";
+  } else {
+    return "有";
+  }
+};
 </script>
 
 <template>
@@ -82,25 +108,33 @@ const handleAdd = () => {
       </el-row>
       <el-table :data="tableData" border stripe>
         <el-table-column prop="id" label="序号" width="80" />
-        <el-table-column prop="picture" label="活动图片" width="100">
+        <el-table-column prop="picturesUrl" label="活动图片" width="100">
           <template #default="scope">
             <el-image
               style="width: 50px; height: 50px"
-              :src="scope.row.picture"
+              :src="
+                scope.row.picturesUrl[0] === undefined
+                  ? ''
+                  : scope.row.picturesUrl[0].url
+              "
               fit="cover"
             />
           </template>
         </el-table-column>
-        <el-table-column prop="activityName" label="活动名称" width="120" />
-        <el-table-column prop="materialType" label="物料类型" />
-        <el-table-column prop="use" label="用途" />
+        <el-table-column prop="name" label="活动名称" width="120" />
+        <el-table-column prop="material" label="物料类型" />
+        <el-table-column prop="useCol" label="用途" />
         <el-table-column prop="festival" label="节日" />
-        <el-table-column prop="specialTopic" label="专题" />
+        <el-table-column prop="topic" label="专题" />
         <el-table-column prop="brand" label="品牌" />
         <el-table-column prop="applicableGrade" label="适用等级" width="100" />
-        <el-table-column prop="uploadUser" label="上传用户" width="100" />
-        <el-table-column prop="uploadDate" label="上传时间" width="100" />
-        <el-table-column prop="sourceFile" label="源文件" />
+        <el-table-column prop="uploader" label="上传用户" width="100" />
+        <el-table-column prop="uploadTime" label="上传时间" width="100" />
+        <el-table-column
+          prop="sourcefilesUrl"
+          label="源文件"
+          :formatter="sourceFilesFormatter"
+        />
         <el-table-column label="操作" fixed="right" width="100">
           <template #default="{ row }">
             <el-button type="text" @click="handleEdit(row)">编辑</el-button>
@@ -108,9 +142,22 @@ const handleAdd = () => {
           </template>
         </el-table-column>
       </el-table>
+      <el-pagination
+        @size-change="sizeChangeHandle"
+        @current-change="currentChangeHandle"
+        :current-page="pageIndex"
+        :page-sizes="[10, 20, 50, 100]"
+        :page-size="pageSize"
+        :total="totalPage"
+        layout="total, sizes, prev, pager, next, jumper"
+      />
     </div>
     <div>
-      <ActivityForm v-if="dialogVisible" ref="activityFormRef" />
+      <ActivityForm
+        v-if="dialogVisible"
+        ref="activityFormRef"
+        @refreshDataList="getDataList"
+      />
     </div>
   </div>
 </template>

@@ -24,7 +24,7 @@ export default {
     },
     {
       path: "/gift/orderDetail/:id",
-      name: "orderDetail",
+      name: "giftOrderDetail",
       component: () => import("@/views/gift/orderDetail.vue"),
       meta: {
         title: "订单详情",

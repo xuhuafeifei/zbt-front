@@ -1,132 +1,198 @@
 <script setup lang="ts">
-import { ref, toRefs } from "vue";
-import { defineProps, onMounted } from "vue";
+import { ref, reactive } from "vue";
+import { onMounted, nextTick } from "vue";
+import FullText from "@/components/FullText/fullText.vue";
+import {
+  ActivityDto,
+  getActivityOptionSelectDto,
+  ActivityFileEntity,
+  saveActivity,
+  updateActivity
+} from "@/api/activity/activity";
+import { ElMessage } from "element-plus";
+import UploadPict from "@/components/Pict/uploadPict.vue";
+import UploadFile from "@/components/File/uploadFile.vue";
+import { deleteFileList, uploadFileList } from "@/api/file";
+import { convertDateToString, sleep } from "@/api/utils";
+import type { UploadProps, UploadUserFile } from "element-plus";
 
-const props = defineProps({
-  activiyFormData: {
-    type: Object,
-    default: () => ({
-      id: "",
-      picture: "",
-      activityName: "",
-      materialType: "",
-      use: "",
-      festival: "",
-      specialTopic: "",
-      brand: "",
-      applicableGrade: "",
-      uploadUser: "",
-      uploadDate: "",
-      sourceFile: "",
-      // 方案介绍
-      desc: ""
-    })
-  }
-});
-
-const activityFormData = toRefs(props);
-
-const localActivityFormData = ref({ ...activityFormData.value });
+const pictType = "pict";
+const fileType = "sourcefile";
 
 const dialogVisible = ref(false);
 
-const imageList = ref([]);
+const imageList = ref<Array<ActivityFileEntity>>([]);
+const fileList = ref<Array<ActivityFileEntity>>([]);
 
-const materialList = [
-  { label: "所有材料", value: "所有材料" },
-  { label: "展架", value: "展架" },
-  { label: "海报", value: "海报" },
-  { label: "优惠卷", value: "优惠卷" },
-  { label: "地推卡", value: "地推卡" },
-  { label: "活动套系", value: "活动套系" }
-];
-const useList = [
-  { label: "全部用途", value: "全部用途" },
-  { label: "招聘", value: "招聘" },
-  { label: "地推", value: "地推" },
-  { label: "开业宣传", value: "开业宣传" },
-  { label: "常规营销", value: "常规营销" },
-  { label: "年终特惠", value: "年终特惠" }
-];
-const festivalList = [
-  { label: "全部节日", value: "全部节日" },
-  { label: "儿童节", value: "儿童节" },
-  { label: "母亲节", value: "母亲节" },
-  { label: "中秋节", value: "中秋节" },
-  { label: "国庆节", value: "国庆节" },
-  { label: "圣诞节", value: "圣诞节" }
-];
-const specialTopicList = [
-  { label: "所有专题", value: "所有专题" },
-  { label: "520", value: "520" },
-  { label: "618", value: "618" },
-  { label: "爱妻月", value: "爱妻月" },
-  { label: "开学季", value: "开学季" },
-  { label: "双11", value: "双11" }
-];
-const brandList = [
-  { label: "通用品牌", value: "通用品牌" },
-  { label: "周六福", value: "周六福" },
-  { label: "周大生", value: "周大生" },
-  { label: "周大福", value: "周大福" },
-  { label: "老凤祥", value: "老凤祥" }
-];
+const materialList = ref([]);
+const useList = ref([]);
+const festivalList = ref([]);
+const specialTopicList = ref([]);
+const brandList = ref([]);
+
+onMounted(() => {
+  getActivityOptionSelectDto().then(res => {
+    console.log(res);
+    materialList.value = res.data.materialList;
+    useList.value = res.data.useList;
+    festivalList.value = res.data.festivalList;
+    specialTopicList.value = res.data.topicList;
+    brandList.value = res.data.brandList;
+  });
+});
 
 const gradeList = ["白银会员", "黄金会员", "钻石会员"];
-// const dialogVisible = ref(false);
-const obj = {
-  id: "",
-  picture: "",
-  activityName: "",
-  materialType: "",
-  use: "",
-  festival: "",
-  specialTopic: "",
-  brand: "",
-  applicableGrade: "",
-  uploadUser: "",
-  uploadDate: "",
-  sourceFile: "",
-  // 方案介绍
-  desc: ""
-};
-const formData = ref(obj);
-const fileList = ref([]);
+const obj = new ActivityDto();
+const formData = reactive(obj);
 
 const title = ref("");
+
+const uploadPictRef = ref(null);
+const uploadFileRef = ref(null);
+const fullTextRef = ref(null);
 
 // 处理父组件传递数据给子组件
 function init(newData) {
   dialogVisible.value = true;
+  // 清空父组件所有数据
+  imageList.value = [];
+  fileList.value = [];
+  // 清空子组件数据
+
   if (newData === null || newData === undefined) {
     title.value = "新增表单";
-    formData.value = obj;
+    formData.setValueFromEntity(new ActivityDto());
+    nextTick(() => {
+      uploadFileRef.value.setData([]);
+      uploadPictRef.value.setData([]);
+      fullTextRef.value.setData("");
+    });
   } else {
     title.value = "编辑表单";
-    formData.value = newData;
+    formData.setValueFromEntity(newData);
+    // 为子组件赋值, 需要编辑的数据
+    nextTick(() => {
+      console.log(formData.picturesUrl);
+      // 更新图片数据
+      uploadPictRef.value.setData(formData.picturesUrl);
+      // 更新文件数据
+      uploadFileRef.value.setData(formData.sourcefilesUrl);
+      // 更新文本数据
+      fullTextRef.value.setData(formData.schemeIntro);
+    });
   }
-  console.log(formData.value);
+  console.log(formData);
 }
 
 // 使用 defineExpose 暴露子组件的方法
 defineExpose({ init });
 
-const handlePreview = file => {
-  // 预览文件的逻辑
+const submitForm = async () => {
+  console.log(formData);
+  if (formData.id === undefined || formData.id === null) {
+    // save
+    const res = await saveActivity(formData.toEntity());
+    // 为formData赋值id
+    formData.id = res.data;
+    console.log(res);
+    if (res.code === 0) {
+      ElMessage.success("表单提交成功");
+      dialogVisible.value = false;
+    } else {
+      ElMessage.error("表单提交失败:" + res.msg);
+    }
+  } else {
+    // update
+    const res = await updateActivity(formData.toEntity());
+    console.log(res);
+    if (res.code === 0) {
+      ElMessage.success("表单修改成功");
+      dialogVisible.value = false;
+    } else {
+      ElMessage.error("表单修改失败:" + res.msg);
+    }
+  }
+  // 提交图片
+  submitPict();
+  // 提交文件
+  submitFile();
+  // 点击提交按钮后, 确保窗口不会被关闭
+  // 表单需要手动关闭, 以保证以同步的方式触发父组件的数据更新
+  // 不建议修改此处逻辑, 否则picturesUrl, sourcefilesUrl可能无法显示最新数据
+  dialogVisible.value = true;
 };
 
-const handleRemove = (file, fileList) => {
-  // 处理文件移除的逻辑
+// 定义发射的事件
+const emit = defineEmits(["refreshDataList"]);
+
+const submitPict = async () => {
+  // 提取未被上传的图片数据
+  const imageListNeedUpload = ref([]);
+  imageList.value.forEach(item => {
+    // 如果id为null 或者 undefined, 表明当前图片没有被存储过, 需要被存储
+    if (item.id === undefined || item.id === null) {
+      imageListNeedUpload.value.push(item);
+    }
+  });
+  if (imageListNeedUpload.value.length === 0) {
+    console.log("无需上传图片");
+    return true;
+  }
+  // 创建formData
+  console.log("图片上传服务器");
+  console.log(imageListNeedUpload.value);
+  const data = new FormData();
+  for (let i = 0; i < imageListNeedUpload.value.length; ++i) {
+    data.append("fileList", imageListNeedUpload.value[i].raw);
+  }
+  const res = await uploadFileList(data, formData.id, pictType);
+  console.log(res);
+  if (res.code === 0) {
+    ElMessage.success("上传成功");
+    return true;
+  } else {
+    ElMessage.error("图片上传失败:" + res.msg);
+    return false;
+  }
 };
 
-const handleExceed = (files, fileList) => {
-  // 文件超出数量限制时的逻辑
-  console.log("Exceed limit:", files, fileList);
+const submitFile = async () => {
+  // 提取未被上传的文件数据
+  const fileListNeedUpload = ref([]);
+  fileList.value.forEach(item => {
+    // id为undefined, 说明文件没有存储过, 需要存储
+    if (item.id === undefined || item.id === null) {
+      fileListNeedUpload.value.push(item);
+    }
+  });
+
+  if (fileListNeedUpload.value.length === 0) {
+    console.log("无需上传文件");
+    return true;
+  }
+  // 创建formData
+  console.log("文件上传服务器");
+  console.log(fileListNeedUpload);
+  const data = new FormData();
+  for (let i = 0; i < fileListNeedUpload.value.length; ++i) {
+    data.append("fileList", fileListNeedUpload.value[i].raw);
+  }
+  const res = await uploadFileList(data, formData.id, fileType);
+  console.log(res);
+  if (res.code === 0) {
+    ElMessage.success("上传成功");
+    return true;
+  } else {
+    ElMessage.error("文件上传失败:" + res.msg);
+    return false;
+  }
 };
 
-const submitForm = () => {
-  console.log("Submit form:", formData.value);
-  // 提交表单的逻辑
+const beforeClose = async (done: () => void) => {
+  // 通知父组件刷新数据列表
+  emit("refreshDataList");
+  sleep(300);
+  done();
 };
 </script>
 
@@ -137,6 +203,7 @@ const submitForm = () => {
       :title="title"
       v-model="dialogVisible"
       style="width: 600px; align-center: true"
+      :before-close="beforeClose"
       align-center
       center
     >
@@ -144,14 +211,14 @@ const submitForm = () => {
         <el-row>
           <el-col :span="10" style="margin-right: 30px">
             <el-form-item label="活动名称">
-              <el-input v-model="formData.activityName" />
+              <el-input v-model="formData.name" />
             </el-form-item>
           </el-col>
           <el-col :span="10">
             <!-- 其他表单项 -->
             <el-form-item label="上传时间">
               <el-date-picker
-                v-model="formData.uploadDate"
+                v-model="formData.uploadTime"
                 type="datetime"
                 placeholder="上传时间"
               />
@@ -161,7 +228,7 @@ const submitForm = () => {
         <!-- 5个下拉框 -->
         <el-form-item>
           <el-select
-            v-model="formData.materialType"
+            v-model="formData.material"
             placeholder="物料"
             class="m-2"
             size="large"
@@ -174,7 +241,7 @@ const submitForm = () => {
             />
           </el-select>
           <el-select
-            v-model="formData.use"
+            v-model="formData.useCol"
             class="m-2"
             placeholder="用途"
             size="large"
@@ -200,7 +267,7 @@ const submitForm = () => {
             />
           </el-select>
           <el-select
-            v-model="formData.specialTopic"
+            v-model="formData.topic"
             class="m-2"
             placeholder="专题"
             size="large"
@@ -237,41 +304,13 @@ const submitForm = () => {
         </el-form-item>
 
         <el-form-item label="图片上传">
-          <el-upload
-            class="upload-demo"
-            action="https://jsonplaceholder.typicode.com/posts/"
-            :on-preview="handlePreview"
-            :on-remove="handleRemove"
-            multiple
-            :limit="3"
-            :on-exceed="handleExceed"
-            :file-list="imageList"
-          >
-            <el-button size="small" type="primary" style="margin-right: 10px"
-              >点击上传</el-button
-            >
-            <div class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
-          </el-upload>
+          <UploadPict v-model:pictList="imageList" ref="uploadPictRef" />
         </el-form-item>
         <el-form-item label="方案介绍">
-          <el-input type="textarea" v-model="formData.desc" />
+          <FullText v-model:html="formData.schemeIntro" ref="fullTextRef" />
         </el-form-item>
         <el-form-item label="源文件">
-          <el-upload
-            class="upload-area"
-            action="https://jsonplaceholder.typicode.com/posts/"
-            drag
-            :on-preview="handlePreview"
-            :on-remove="handleRemove"
-            :file-list="fileList"
-            multiple
-            :limit="3"
-            :on-exceed="handleExceed"
-            style="width: 10xp"
-          >
-            <i class="el-icon-plus" />
-            <div class="el-upload__tip">点击或拖拽文件到此处上传</div>
-          </el-upload>
+          <UploadFile v-model:fileList="fileList" ref="uploadFileRef" />
         </el-form-item>
       </el-form>
       <div class="dialog-footer">

@@ -55,75 +55,13 @@ export default {
     {
       path: "/activity/settings",
       name: "activitySettings",
-      // component: () => import("@/views/activity/setting.vue"),
-      component: Layout,
+      component: () => import("@/views/activity/setting.vue"),
+      // component: Layout,
       meta: {
         title: "活动库设置",
         showLink: VITE_HIDE_HOME === "true" ? false : true,
         icon: "pencilLine"
-      },
-      children: [
-        // {
-        //   path: "/activity/activitySetting",
-        //   name: "activityActivitySetting",
-        //   component: () => import("@/views/activity/setting/activity.vue"),
-        //   meta: {
-        //     title: "活动设置",
-        //     showLink: VITE_HIDE_HOME === "true" ? false : true,
-        //     icon: "pencilLine"
-        //   }
-        // },
-        {
-          path: "/activity/materialSetting",
-          name: "activityMaterialSetting",
-          component: () => import("@/views/activity/setting/material.vue"),
-          meta: {
-            title: "物料类型",
-            showLink: VITE_HIDE_HOME === "true" ? false : true,
-            icon: "pencilLine"
-          }
-        },
-        {
-          path: "/activity/useSetting",
-          name: "activityUseSetting",
-          component: () => import("@/views/activity/setting/use.vue"),
-          meta: {
-            title: "用途设置",
-            showLink: VITE_HIDE_HOME === "true" ? false : true,
-            icon: "pencilLine"
-          }
-        },
-        {
-          path: "/activity/festivalSetting",
-          name: "activityFestivalSetting",
-          component: () => import("@/views/activity/setting/festival.vue"),
-          meta: {
-            title: "节日设置",
-            showLink: VITE_HIDE_HOME === "true" ? false : true,
-            icon: "pencilLine"
-          }
-        },
-        {
-          path: "/activity/topicSetting",
-          name: "activityTopicSetting",
-          component: () => import("@/views/activity/setting/topic.vue"),
-          meta: {
-            title: "专题设置",
-            showLink: VITE_HIDE_HOME === "true" ? false : true,
-            icon: "pencilLine"
-          }
-        },
-        {
-          path: "/activity/brandSetting",
-          name: "activityBrandSetting",
-          component: () => import("@/views/activity/setting/brand.vue"),
-          meta: {
-            title: "品牌设置",
-            showLink: VITE_HIDE_HOME === "true" ? false : true,
-            icon: "pencilLine"
-          }
-        }
-      ]
+      }
     }
   ]
 } as RouteConfigsTable;

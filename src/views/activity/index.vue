@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted, reactive } from "vue";
 import InfoAll from "./component/infoAll.vue";
 import Detail from "./component/detail.vue";
+import { getActivityOptionDto } from "@/api/activity/activity";
+import { ElMessage } from "element-plus";
 
 const checkboxMaterial = ref(["全部"]);
 const checkboxUse = ref(["招聘"]);
@@ -13,47 +15,38 @@ const checkboxBrand = ref(["通用"]);
 const isDetail = ref(false);
 
 // 物料
-const materials = [
-  "全部",
-  "展架",
-  "海报",
-  "优惠劵",
-  "地推卡",
-  "预存卡",
-  "活动套系"
-];
+const materials = ref([]);
 // 用途
-const uses = [
-  "全部",
-  "招聘",
-  "地推",
-  "开业宣传",
-  "常规营销",
-  "周年店庆",
-  "会员日"
-];
+const uses = ref([]);
 // 节日
-const festivals = ["全部", "中秋节", "国庆节", "圣诞节", "元旦节"];
+const festivals = ref([]);
 // 专题
-const specialTopics = ["全部", "双11预热", "双十一", "双十二", "年终大促"];
+const specialTopics = ref([]);
 // 品牌
-const brands = ["通用", "周大福", "周大生", "老凤祥"];
-
-const obj = {
-  id: 1,
-  sportrait:
-    "https://feigebuge.oss-cn-beijing.aliyuncs.com/QQ%E5%9B%BE%E7%89%8720230819130111.gif"
-};
-
-const value1 = ref(true);
-const List = ref([obj, obj, obj, obj, obj, obj, obj, obj, obj, obj, obj, obj]);
-const dataList = ref([]);
+const brands = ref([]);
 const pageIndex = ref(1);
 const pageSize = ref(10);
 const totalPage = ref(0);
 
 const getDataList = val => {
   console.log(val);
+};
+
+/** 获取选项数据 */
+const getOptionList = async () => {
+  const res = await getActivityOptionDto();
+  console.log(res);
+  if (res.code !== 0) {
+    ElMessage.error("获取数据错误: " + res.msg);
+  } else {
+    const optionDto = res.data;
+    materials.value = optionDto.materialList;
+    uses.value = optionDto.useList;
+    festivals.value = optionDto.festivalList;
+    specialTopics.value = optionDto.topicList;
+    brands.value = optionDto.brandList;
+  }
+  console.log(materials);
 };
 
 // 每页数
@@ -67,6 +60,10 @@ const currentChangeHandle = val => {
   pageIndex.value = val;
   // getDataList(className.value);
 };
+
+onMounted(() => {
+  getOptionList();
+});
 </script>
 
 <template>

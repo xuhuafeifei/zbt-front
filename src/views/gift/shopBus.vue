@@ -65,9 +65,9 @@ const handleSelectionChange = (val: Object[]) => {
     <el-table
       ref="multipleTableRef"
       :data="tableData"
-      style="width: 100%"
       @selection-change="handleSelectionChange"
       select
+      class="table-style"
     >
       <el-table-column type="selection" width="55" />
       <el-table-column prop="id" label="序号" />
@@ -95,12 +95,11 @@ const handleSelectionChange = (val: Object[]) => {
     </el-table>
 
     <div class="content-wrapper">
-      <!-- <el-checkbox>全选</el-checkbox> -->
       <div class="info">
         <span>已选商品 2 件</span>
         <span class="price">合计: ￥20</span>
       </div>
-      <el-button type="primary">提交订单</el-button>
+      <el-button type="primary">添加至礼品订单</el-button>
     </div>
   </div>
 </template>
@@ -118,6 +117,9 @@ const handleSelectionChange = (val: Object[]) => {
   right: 0; /* 与右边界对齐 */
   bottom: 0; /* 与底部对齐 */
   box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1); /* 添加一些阴影效果 */
+  margin-top: 20px;
+  margin-left: 20px;
+  width: 90%;
 }
 
 .info {
@@ -132,5 +134,11 @@ const handleSelectionChange = (val: Object[]) => {
 /* 调整按钮样式 */
 .el-button {
   margin-left: auto; /* 推到容器的右边 */
+}
+
+.table-style {
+  width: 90%;
+  margin-left: 20px;
+  margin-top: 20px;
 }
 </style>

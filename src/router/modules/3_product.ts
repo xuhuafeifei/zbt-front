@@ -43,6 +43,16 @@ export default {
       }
     },
     {
+      path: "/product/orderDetail/:id",
+      name: "productOrderDetail",
+      component: () => import("@/views/product/orderDetail.vue"),
+      meta: {
+        title: "产品订单详情",
+        showLink: false,
+        icon: "pencilLine"
+      }
+    },
+    {
       path: "/product/manager",
       name: "productManager",
       component: () => import("@/views/product/manager.vue"),
@@ -55,12 +65,35 @@ export default {
     {
       path: "/product/settings",
       name: "productSettings",
-      component: () => import("@/views/product/setting.vue"),
+      // component: () => import("@/views/product/setting.vue"),
+      component: Layout,
       meta: {
         title: "产品库设置",
         showLink: VITE_HIDE_HOME === "true" ? false : true,
         icon: "pencilLine"
-      }
+      },
+      children: [
+        {
+          path: "/product/styleSettings",
+          name: "productStyleSetting",
+          component: () => import("@/views/product/setting/style.vue"),
+          meta: {
+            title: "款式设置",
+            showLink: VITE_HIDE_HOME === "true" ? false : true,
+            icon: "pencilLine"
+          }
+        },
+        {
+          path: "/product/sizeSettings",
+          name: "productSizeSetting",
+          component: () => import("@/views/product/setting/size.vue"),
+          meta: {
+            title: "尺寸设置",
+            showLink: VITE_HIDE_HOME === "true" ? false : true,
+            icon: "pencilLine"
+          }
+        }
+      ]
     }
   ]
 } as RouteConfigsTable;
