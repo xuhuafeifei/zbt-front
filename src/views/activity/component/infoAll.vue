@@ -21,7 +21,6 @@ const detail = item => {
   console.log(item);
   dialogVisible.value = true;
   nextTick(() => {
-    console.log(detailSecRef);
     detailSecRef.value.init([item]);
   });
 };

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import {
   ElForm,
   ElFormItem,
@@ -12,10 +12,16 @@ import {
   ElMessage
 } from "element-plus";
 import { useRouter } from "vue-router";
+import {
+  OrderEntity,
+  getOrderList,
+  ConditionOrder
+} from "@/api/activity/order";
+import { getStoreUser } from "@/api/utils";
 
 const router = useRouter();
 const searchText = ref("");
-const selected = ref("");
+const selected = ref("全部");
 const options = ref([
   { value: "全部", label: "全部" },
   { value: "待接单", label: "待接单" },
@@ -25,25 +31,34 @@ const options = ref([
   // ...其他选项
 ]);
 
+onMounted(() => {
+  onSearchClick();
+});
+
 const onSearchClick = () => {
   // 这里可以添加搜索逻辑
   console.log("搜索内容:", searchText.value);
   console.log("选择的选项:", selected.value);
+  const storeUser = getStoreUser();
+  console.log(storeUser);
+  const co = new ConditionOrder();
+  co.page = pageIndex.value;
+  co.limit = pageSize.value;
+  co.status = selected.value;
+  // 如果是普通用户, 只能查看自己的订单
+  if (storeUser.role === "user") {
+    co.userId = storeUser.id;
+  }
+  // 获取order
+  getOrderList(co).then(res => {
+    console.log(res);
+    tableData.value = res.data.list;
+    totalPage.value = res.data.totalCount;
+  });
 };
 
 // 示例数据
-const tableData = ref([
-  {
-    orderId: "12345678910",
-    customer: "王小虎",
-    activityType: "双十一大促",
-    materialType: "海报",
-    creationDate: "2023/10/31 14:20:20",
-    completionDate: "-",
-    status: "待接单"
-  }
-  // ...其他数据项
-]);
+const tableData = ref<Array<OrderEntity>>([]);
 
 const handleClickView = row => {
   console.log("click");
@@ -63,6 +78,22 @@ const handleClickPassSouceFile = row => {
 const handleClickTakeOrder = row => {
   console.log(row);
   ElMessage.error("暂无原型图");
+};
+
+const pageIndex = ref(1);
+const pageSize = ref(10);
+const totalPage = ref(0);
+
+// 每页数
+const sizeChangeHandle = val => {
+  pageSize.value = val;
+  pageIndex.value = 1;
+  // getDataList(className.value);
+};
+// 当前页
+const currentChangeHandle = val => {
+  pageIndex.value = val;
+  // getDataList(className.value);
 };
 </script>
 
@@ -94,12 +125,14 @@ const handleClickTakeOrder = row => {
       :header-cell-style="{ 'text-align': 'center' }"
       :cell-style="{ 'text-align': 'center' }"
     >
-      <el-table-column prop="orderId" label="订单编号" width="120" />
-      <el-table-column prop="customer" label="顾客/门店" width="100" />
-      <el-table-column prop="activityType" label="活动类型" width="100" />
-      <el-table-column prop="materialType" label="物料类型" width="100" />
-      <el-table-column prop="creationDate" label="创建时间" width="160" />
-      <el-table-column prop="completionDate" label="完成时间" width="160" />
+      <el-table-column prop="id" label="订单编号" width="120" />
+      <el-table-column prop="demandStore" label="需求门店" width="100" />
+      <el-table-column prop="actName" label="活动名称" width="100" />
+      <el-table-column prop="material" label="物料类型" width="100" />
+      <el-table-column prop="orderTime" label="创建时间" width="160" />
+      <el-table-column prop="demandTime" label="需求时间" width="160" />
+      <el-table-column prop="finishTime" label="完成时间" width="100" />
+      <el-table-column prop="status" label="状态" width="160" />
       <el-table-column fixed="right" label="操作" width="250">
         <template #default="scope">
           <el-button
@@ -132,8 +165,16 @@ const handleClickTakeOrder = row => {
           >
         </template>
       </el-table-column>
-      <el-table-column prop="status" label="完成时间" width="100" />
     </el-table>
+    <el-pagination
+      @size-change="sizeChangeHandle"
+      @current-change="currentChangeHandle"
+      :current-page="pageIndex"
+      :page-sizes="[10, 20, 50, 100]"
+      :page-size="pageSize"
+      :total="totalPage"
+      layout="total, sizes, prev, pager, next, jumper"
+    />
   </div>
 </template>
 

@@ -36,5 +36,7 @@ export type PageUtils<T> = {
 
 export const getStoreUser = () => {
   const res = sessionStorage.getItem("user-info");
+  // const res = sessionStorage.getItem("user-info");
+  console.log(res);
   return JSON.parse(res);
 };

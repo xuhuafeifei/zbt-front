@@ -215,8 +215,7 @@ const beforeClose = async (done: () => void) => {
               <el-input v-model="formData.name" />
             </el-form-item>
           </el-col>
-          <el-col :span="10">
-            <!-- 其他表单项 -->
+          <!-- <el-col :span="10">
             <el-form-item label="上传时间">
               <el-date-picker
                 v-model="formData.uploadTime"
@@ -224,7 +223,7 @@ const beforeClose = async (done: () => void) => {
                 placeholder="上传时间"
               />
             </el-form-item>
-          </el-col>
+          </el-col> -->
         </el-row>
         <!-- 5个下拉框 -->
         <el-form-item>

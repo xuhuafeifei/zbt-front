@@ -1,5 +1,11 @@
 import { http } from "@/utils/http";
-import { PageUtils, R, activityUrlApi, convertDateToString, getStoreUser } from "../utils";
+import {
+  PageUtils,
+  R,
+  activityUrlApi,
+  convertDateToString,
+  getStoreUser
+} from "../utils";
 import { ActivityDto } from "./activity";
 
 export class OrderEntity {
@@ -29,6 +35,10 @@ export class OrderEntity {
   userId: number;
   /** 下单那用户姓名 */
   orderUserName: String;
+  /** 关联素材id */
+  actId: Number;
+  /** 活动名称 */
+  actName: String;
 
   constructor() {}
 
@@ -42,14 +52,44 @@ export class OrderEntity {
     this.orderUserName = getStoreUser().name;
     this.status = "待接单";
     this.orderTime = convertDateToString(new Date());
+    this.actId = dto.id;
+    this.actName = dto.name;
   }
 }
 
 /** 查询订单数据 */
-export const getOrderList = (page: number, limit: number, userId: number) => {
+export const getOrderListWithUserId = (
+  page: number,
+  limit: number,
+  userId: number
+) => {
   return http.request<R<PageUtils<OrderEntity>>>(
     "get",
     activityUrlApi(`order/list?page=${page}&limit=${limit}&userId=${userId}`)
+  );
+};
+
+export class ConditionOrder {
+  page: Number;
+  limit: Number;
+  userId: Number;
+  status: String;
+
+  constructor() {
+    this.limit = 1;
+    this.page = 10;
+    this.userId = null;
+    this.status = "";
+  }
+}
+
+export const getOrderList = (data?: ConditionOrder) => {
+  const { page, limit, userId, status } = data;
+  return http.request<R<PageUtils<OrderEntity>>>(
+    "get",
+    activityUrlApi(
+      `order/list?page=${page}&limit=${limit}&userId=${userId}&status=${status}`
+    )
   );
 };
 

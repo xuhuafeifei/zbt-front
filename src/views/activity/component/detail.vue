@@ -4,6 +4,10 @@ import { ElImage } from "element-plus";
 import { ActivityDto } from "@/api/activity/activity";
 import { ElMessage } from "element-plus";
 import { OrderEntity, saveOrder } from "@/api/activity/order";
+import { sleep } from "@/api/utils";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
 
 const scrollContainer = ref(null); // 用于引用滚动容器的DOM元素
 
@@ -35,21 +39,25 @@ const handleDownload = () => {
 /** 下载文件 */
 const download = () => {
   const data = dataList.value[0];
-  // ElMessage.info("下载图片");
-  // data.picturesUrl.forEach(item => {
-  //   window.location.href = item;
-  // });
   ElMessage.info("下载源文件");
   data.sourcefilesUrl.forEach(item => {
-    window.location.href = item.url;
+    console.log(item);
+    window.open(item.url);
   });
 };
 
 /** 下订单 */
 const takeOrder = () => {
-  const entity = new OrderEntity();
-  saveOrder().then(res => {
+  console.log(formData);
+  saveOrder(formData).then(res => {
     console.log(res);
+    if (res.code === 0) {
+      ElMessage.success("下单成功");
+      sleep(500);
+      router.push("/activity/order");
+    } else {
+      ElMessage.error("下单失败: " + res.msg);
+    }
   });
 };
 
@@ -79,6 +87,10 @@ const formData = reactive(new OrderEntity());
               <p><strong>品牌：</strong>{{ item.brand }}</p>
               <p><strong>上传时间：</strong>{{ item.uploadTime }}</p>
               <p><strong>上传者：</strong>{{ item.uploader }}</p>
+              <p>
+                <strong>源文件：</strong
+                >{{ item.sourcefilesUrl.length == 0 ? "无" : "有" }}
+              </p>
             </div>
             <div class="document-actions">
               <el-button type="primary" @click="handleChoose">选他</el-button>
@@ -107,7 +119,11 @@ const formData = reactive(new OrderEntity());
             />
           </el-form-item>
           <el-form-item label="需求时间">
-            <el-date-picker type="datetime" v-model="formData.demandTime" />
+            <el-date-picker
+              type="datetime"
+              v-model="formData.demandTime"
+              value-format="YYYY-MM-DD hh:mm:ss"
+            />
           </el-form-item>
           <el-form-item label="需求门店">
             <el-input v-model="formData.demandStore" />
