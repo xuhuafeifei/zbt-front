@@ -1,10 +1,21 @@
 <script setup lang="ts">
 import { defineProps, ref, toRefs } from "vue";
+import "@wangeditor/editor/dist/css/style.css";
+import {
+  onBeforeUnmount,
+  shallowRef,
+  defineEmits,
+  onMounted,
+  watch,
+  nextTick
+} from "vue";
+import { Editor, Toolbar } from "@wangeditor/editor-for-vue";
+import { CommunicateRecordEntity } from "@/api/activity/communicateRecord";
 
 const props = defineProps({
   operateRecord: {
-    type: Object,
-    default: () => ({ id: "", operator: "", operateDate: "", dynamic: "" })
+    type: CommunicateRecordEntity,
+    default: () => new CommunicateRecordEntity()
   }
 });
 
@@ -17,21 +28,77 @@ const { operateRecord } = toRefs(props);
 
 // 定义一个本地的响应式数据属性来存储 prop 的副本
 const localOperateRecord = ref({ ...operateRecord.value });
+
+// 编辑器实例，必须用 shallowRef，重要！
+const editorRef = shallowRef();
+
+// 组件销毁时，也及时销毁编辑器，重要！
+onBeforeUnmount(() => {
+  const editor = editorRef.value;
+  if (editor == null) return;
+
+  editor.destroy();
+});
+
+// 编辑器回调函数
+const handleCreated = editor => {
+  console.log("created", editor);
+  editorRef.value = editor; // 记录 editor 实例，重要！
+};
+const handleDestroyed = editor => {
+  console.log("destroyed", editor);
+};
+const customAlert = (info, type) => {
+  alert(`&#8203;``【oaicite:0】``&#8203;${type} - ${info}`);
+};
+const customPaste = (editor, event, callback) => {
+  console.log("ClipboardEvent 粘贴事件对象", event);
+
+  // 自定义插入内容
+  editor.insertText("xxx");
+
+  // 返回值（注意，vue 事件的返回值，不能用 return）
+  callback(false); // 返回 false ，阻止默认粘贴行为
+  // callback(true) // 返回 true ，继续默认的粘贴行为
+};
+
+onMounted(() => {
+  // 只读
+  nextTick(() => {
+    const editor = editorRef.value;
+    editor.disable();
+  });
+});
 </script>
 
 <template>
   <div class="message-header">
-    <span class="message-date">操作人:{{ localOperateRecord.operator }}</span>
+    <span class="message-date"
+      >操作人:{{ localOperateRecord.uploaderName }}</span
+    >
     <!-- <el-input v-model="localOperateRecord.operator" disabled /> -->
   </div>
   <div class="message-content">
     <span class="message-date">
-      时间: {{ localOperateRecord.operateDate }}
+      时间: {{ localOperateRecord.uploadTime }}
       <!-- <el-date-picker v-model="localOperateRecord.operateDate" disabled /> -->
     </span>
   </div>
   <div class="message-content">
-    <span class="message-date">动态: {{ localOperateRecord.dynamic }}</span>
+    <span class="message-date"
+      >动态:
+      <Editor
+        :defaultConfig="editorConfig"
+        :editor="editorRef"
+        :mode="mode"
+        v-model="localOperateRecord.content"
+        :style="100"
+        @onCreated="handleCreated"
+        @onDestroyed="handleDestroyed"
+        @customAlert="customAlert"
+        @customPaste="customPaste"
+      />
+    </span>
     <!-- <el-input v-model="localOperateRecord.dynamic" /> -->
   </div>
   <div class="message-footer">

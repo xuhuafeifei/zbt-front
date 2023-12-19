@@ -3,11 +3,18 @@ import { ref, defineProps, watch, defineEmits } from "vue";
 import { Plus } from "@element-plus/icons-vue";
 import type { UploadProps } from "element-plus";
 import { ElMessage, ElMessageBox } from "element-plus";
-import { deleteFile } from "@/api/file";
+import { deleteFile } from "@/api/activity/file";
 import { ActivityFileEntity } from "@/api/activity/activity";
 
 const props = defineProps({
-  pictList: []
+  pictList: {
+    type: Array,
+    default: () => []
+  },
+  limit: {
+    type: Number,
+    default: 20
+  }
 });
 
 // 将父组件传递的pictList作为本地数据

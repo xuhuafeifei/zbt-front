@@ -2,10 +2,17 @@
 import { ref, defineProps, watch, defineExpose } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { ActivityFileEntity } from "@/api/activity/activity";
-import { deleteFile } from "@/api/file";
+import { deleteFile } from "@/api/activity/file";
 
 const props = defineProps({
-  fileList: []
+  fileList: {
+    type: Array,
+    dafeult: () => []
+  },
+  limit: {
+    type: Number,
+    default: 20
+  }
 });
 
 // 将父组件传递的pictList作为本地数据
@@ -33,7 +40,9 @@ const httpRequest = () => {
 };
 
 const handleExceed: UploadProps["onExceed"] = (files, uploadFiles) => {
-  ElMessage.warning(`文件限制是 3, 选择了的文件数量是${files.length}`);
+  ElMessage.warning(
+    `文件限制是 ${props.limit}, 选择了的文件数量是${files.length}`
+  );
 };
 
 const beforeRemove: UploadProps["beforeRemove"] = (uploadFile, uploadFiles) => {
@@ -85,7 +94,7 @@ defineExpose({ setData });
     :on-change="uploadFile"
     :http-request="httpRequest"
     :before-remove="beforeRemove"
-    :limit="3"
+    :limit="limit"
     :on-exceed="handleExceed"
   >
     <i class="el-icon-plus" />

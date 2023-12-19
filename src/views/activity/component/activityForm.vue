@@ -12,11 +12,8 @@ import {
 import { ElMessage } from "element-plus";
 import UploadPict from "@/components/Pict/uploadPict.vue";
 import UploadFile from "@/components/File/uploadFile.vue";
-import { uploadFileList } from "@/api/file";
-import { sleep } from "@/api/utils";
-
-const pictType = "pict";
-const fileType = "sourcefile";
+import { uploadFileList } from "@/api/activity/file";
+import { fileType, pictType, sleep } from "@/api/utils";
 
 const dialogVisible = ref(false);
 

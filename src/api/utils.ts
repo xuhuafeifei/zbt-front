@@ -1,6 +1,8 @@
 export const baseUrlApi = (url: string) => `/api_zbt/${url}`;
 export const activityUrlApi = (url: string) => `/api_zbt/activity/${url}`;
-export const fileUrlApi = (url: string) => `/api_zbt/${url}`;
+
+export const pictType = "pict";
+export const fileType = "sourcefile";
 
 /** 后端返回通用数据类型 */
 export type R<T> = {

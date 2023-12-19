@@ -50,6 +50,8 @@ import {
   watch
 } from "vue";
 import { Editor, Toolbar } from "@wangeditor/editor-for-vue";
+import { IEditorConfig } from "@wangeditor/editor";
+import { activityUrlApi } from "@/api/utils";
 
 // 控制组件高度
 const props = defineProps({
@@ -77,18 +79,20 @@ const emits = defineEmits(["update:html"]);
 // 编辑器实例，必须用 shallowRef，重要！
 const editorRef = shallowRef();
 
-// 内容 HTML
-// const valueHtml = ref("<p>hello</p>");
-
 // 模拟 ajax 异步获取内容
 onMounted(() => {
-  // setTimeout(() => {
-  //   valueHtml.value = "<p>模拟 Ajax 异步设置内容</p>";
-  // }, 1500);
 });
 
 const toolbarConfig = {};
-const editorConfig = { placeholder: "请输入内容..." };
+// 初始化 MENU_CONF 属性
+const editorConfig: Partial<IEditorConfig> = {
+  MENU_CONF: {}
+};
+
+// 配置图片上传地址
+editorConfig.MENU_CONF["uploadImage"] = {
+  server: activityUrlApi("file/fullTextImage")
+};
 
 // 组件销毁时，也及时销毁编辑器，重要！
 onBeforeUnmount(() => {
@@ -104,7 +108,7 @@ const handleCreated = editor => {
   editorRef.value = editor; // 记录 editor 实例，重要！
 };
 const handleChange = editor => {
-  console.log("change:", editor.getHtml());
+  // console.log("change:", editor.getHtml());
 };
 const handleDestroyed = editor => {
   console.log("destroyed", editor);
@@ -154,6 +158,5 @@ const mode = "default"; // 或 'simple'
 function setData(value: string) {
   valueHtml.value = value;
 }
-
 defineExpose({ setData });
 </script>

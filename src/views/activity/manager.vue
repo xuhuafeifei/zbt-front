@@ -13,7 +13,7 @@ import {
 } from "element-plus";
 
 import ActivityForm from "./component/activityForm.vue";
-import { ActivityDto } from "@/api/activity/activity";
+import { ActivityDto, deleteById } from "@/api/activity/activity";
 import { getActivityPageList } from "@/api/activity/manage";
 
 const filters = ref({
@@ -38,6 +38,14 @@ const handleEdit = row => {
 const handleDelete = row => {
   // 处理删除逻辑
   console.log("删除", row);
+  deleteById(row.id).then(res => {
+    if (res.code === 0) {
+      ElMessage.success("删除成功");
+      getDataList();
+    } else {
+      ElMessage.error("删除失败:" + res.msg);
+    }
+  });
 };
 
 const dialogVisible = ref(false);

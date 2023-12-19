@@ -7,6 +7,7 @@ import {
   getStoreUser
 } from "../utils";
 import { ActivityDto } from "./activity";
+import { en } from "element-plus/es/locale";
 
 export class OrderEntity {
   /** 订单id */
@@ -39,6 +40,10 @@ export class OrderEntity {
   actId: Number;
   /** 活动名称 */
   actName: String;
+  /** 完成时间 */
+  finishTime: String;
+  /** 接单用户id */
+  receUserId: Number;
 
   constructor() {}
 
@@ -54,6 +59,26 @@ export class OrderEntity {
     this.orderTime = convertDateToString(new Date());
     this.actId = dto.id;
     this.actName = dto.name;
+  }
+
+  setValueFromEntity(entity: OrderEntity) {
+    this.id = entity.id; // 订单id
+    this.orderTime = entity.orderTime; // 订单时间
+    this.demandStore = entity.demandStore; // 需求门店
+    this.demandTime = entity.demandTime; // 需求时间
+    this.material = entity.material; // 物料
+    this.useCol = entity.useCol; // 用途
+    this.festival = entity.festival; // 节日
+    this.topic = entity.topic; // 主题
+    this.brand = entity.brand; // 品牌
+    this.isDelete = entity.isDelete; // 是否删除
+    this.status = entity.status; // 订单状态
+    this.userId = entity.userId; // 下单用户id
+    this.orderUserName = entity.orderUserName; // 下单用户姓名
+    this.actId = entity.actId; // 关联素材id
+    this.actName = entity.actName; // 活动名称
+    this.finishTime = entity.finishTime; // 完成时间
+    this.receUserId = entity.receUserId; // 接单用户id
   }
 }
 
@@ -95,13 +120,9 @@ export const getOrderList = (data?: ConditionOrder) => {
 
 /** 保存订单数据 */
 export const saveOrder = (data?: OrderEntity) => {
-  return http.request<R<PageUtils<OrderEntity>>>(
-    "post",
-    activityUrlApi("order/save"),
-    {
-      data
-    }
-  );
+  return http.request<R<String>>("post", activityUrlApi("order/save"), {
+    data
+  });
 };
 
 /** 修改订单数据 */
@@ -112,5 +133,21 @@ export const updateOrder = (data?: OrderEntity) => {
     {
       data
     }
+  );
+};
+
+/** 根据id查询order */
+export const getOrderById = (id: number) => {
+  return http.request<R<OrderEntity>>(
+    "get",
+    activityUrlApi("order/info/" + id)
+  );
+};
+
+/** 验收 */
+export const checkAndAccept = (orderId: Number) => {
+  return http.request<R<String>>(
+    "get",
+    activityUrlApi(`/order/checkAndAccept?orderId=${orderId}`)
   );
 };

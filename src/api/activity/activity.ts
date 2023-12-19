@@ -173,3 +173,19 @@ export const updateActivity = (data?: ActivityEntity) => {
     data
   });
 };
+
+/** 查询活动数据 */
+export const getFileByActId = (id: Number, fileType: string) => {
+  return http.request<R<Array<ActivityFileEntity>>>(
+    "get",
+    activityUrlApi(`file/getFileByActId?actId=${id}&fileType=${fileType}`)
+  );
+};
+
+/** 删除活动素材 */
+export const deleteById = (actId: number) => {
+  return http.request<R<String>>(
+    "delete",
+    activityUrlApi(`activity/delete?actId=${actId}`)
+  );
+};

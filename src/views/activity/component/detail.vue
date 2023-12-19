@@ -4,14 +4,19 @@ import { ElImage } from "element-plus";
 import { ActivityDto } from "@/api/activity/activity";
 import { ElMessage } from "element-plus";
 import { OrderEntity, saveOrder } from "@/api/activity/order";
-import { sleep } from "@/api/utils";
+import { getStoreUser, sleep } from "@/api/utils";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
 
 const scrollContainer = ref(null); // 用于引用滚动容器的DOM元素
 
-onMounted(async () => {});
+const role = ref("");
+
+onMounted(async () => {
+  role.value = getStoreUser().roles[0];
+  console.log(role.value);
+});
 
 const dataList = ref<Array<ActivityDto>>([]);
 // 初始化组件数据
@@ -92,12 +97,16 @@ const formData = reactive(new OrderEntity());
                 >{{ item.sourcefilesUrl.length == 0 ? "无" : "有" }}
               </p>
             </div>
-            <div class="document-actions">
-              <el-button type="primary" @click="handleChoose">选他</el-button>
+            <template v-if="role === 'user'">
+              <el-button type="primary" @click="handleChoose"
+                >选他</el-button
+              ></template
+            >
+            <template v-if="role !== 'user'">
               <el-button type="primary" @click="handleDownload"
                 >下载源文件</el-button
-              >
-            </div>
+              ></template
+            >
           </div>
         </el-row>
       </el-card>

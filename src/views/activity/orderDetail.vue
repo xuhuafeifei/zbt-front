@@ -4,31 +4,29 @@
       <!-- 海报图片 -->
       <el-card style="margin-bottom: 10px">
         <div class="image-wrapper">
-          <el-image class="poster-image" :src="posterUrl" fit="contain" />
+          <el-image class="poster-image" :src="url" fit="contain" />
         </div>
-        <div class="text-center" style="font-weight: bold">双十一大促海报</div>
+        <div class="text-center" style="font-weight: bold">
+          {{ orderForm.actName }}
+        </div>
       </el-card>
       <!-- 订单表单 -->
       <el-card style="margin-bottom: 10px" class="box-card">
         <div class="text item">
-          <span>证件编号：</span>
-          <el-input v-model="orderForm.idNumber" disabled />
+          <span>订单编号：</span>
+          <el-input v-model="orderForm.id" disabled />
         </div>
         <div class="text item">
-          <span>提交时间：</span>
-          <el-date-picker
-            v-model="orderForm.submissionDate"
-            type="date"
-            disabled
-          />
+          <span>订单时间：</span>
+          <el-date-picker v-model="orderForm.orderTime" type="date" disabled />
         </div>
         <div class="text item">
           <span>需要门店：</span>
-          <el-input v-model="orderForm.demandDate" disabled />
+          <el-input v-model="orderForm.demandStore" disabled />
         </div>
         <div class="text item">
           <span>需求时间：</span>
-          <el-date-picker v-model="orderForm.demandDate" type="date" disabled />
+          <el-date-picker v-model="orderForm.demandTime" type="date" disabled />
         </div>
         <div class="text item">
           <span>节日：</span>
@@ -36,7 +34,7 @@
         </div>
         <div class="text item">
           <span>用途：</span>
-          <el-input v-model="orderForm.usage" disabled />
+          <el-input v-model="orderForm.useCol" disabled />
         </div>
         <div class="text item">
           <span>专题：</span>
@@ -50,12 +48,17 @@
           <span>物料:</span>
           <el-input v-model="orderForm.material" disabled />
         </div>
+
+        <div class="text item">
+          <span class="info-label">订单状态：</span>
+          <el-input v-model="orderForm.status" disabled />
+        </div>
       </el-card>
       <!-- 接单表单 -->
       <el-card class="box-card">
         <div class="info-item">
           <span class="info-label">接单时间：</span>
-          <el-input v-model="receiveForm.orderReceiptDate" disabled />
+          <el-input v-model="receiveForm.orderReceiveTime" disabled />
         </div>
         <div class="info-item">
           <span class="info-label">设计师：</span>
@@ -63,23 +66,19 @@
         </div>
         <div class="text item">
           <span class="info-label">传初稿时间：</span>
-          <el-date-picker v-model="receiveForm.firstDraftDate" disabled />
+          <el-date-picker v-model="receiveForm.firstDraftTime" disabled />
         </div>
         <div class="text item">
-          <span class="info-label">传终稿时间：</span>
-          <el-date-picker v-model="receiveForm.finalDraftDate" disabled />
+          <span class="info-label">传源文件时间：</span>
+          <el-date-picker v-model="receiveForm.firstSourcefileTime" disabled />
         </div>
         <div class="info-item">
           <span class="info-label">完成时间：</span>
-          <el-input v-model="receiveForm.completionDate" disabled />
+          <el-input v-model="receiveForm.finishTime" disabled />
         </div>
         <div class="info-item">
           <span class="info-label">联系人电话：</span>
-          <el-input v-model="receiveForm.contactPhone" disabled />
-        </div>
-        <div class="info-item">
-          <span class="info-label">订单状态：</span>
-          <el-input v-model="receiveForm.orderStatus" disabled />
+          <el-input v-model="receiveForm.concatTelephone" disabled />
         </div>
       </el-card>
     </el-col>
@@ -98,9 +97,26 @@
               订单状态
             </div>
             <div>
-              <el-button link type="primary" plain size="large"
-                >更新状态</el-button
-              >
+              <template v-if="orderForm.status === '待接单' && role !== 'user'">
+                <el-button type="primary" @click="handleClickTakeOrder"
+                  >接单</el-button
+                >
+              </template>
+              <template v-if="orderForm.status !== '待接单' && role !== 'user'">
+                <!-- 只允许接单的设计师传告, 以及操作员 -->
+                <el-button type="primary" @click="handleClickPassDraft"
+                  >传初稿</el-button
+                >
+                <!-- 只允许接单的设计师传告, 以及操作员 -->
+                <el-button type="primary" @click="handleClickPassSouceFile"
+                  >传源文件</el-button
+                >
+              </template>
+              <template v-if="orderForm.status === '待验收' && role === 'user'">
+                <el-button type="primary" @click="handleCheckAndAccept"
+                  >验收</el-button
+                >
+              </template>
             </div>
           </el-row>
         </div>
@@ -118,21 +134,20 @@
           沟通记录
         </div>
         <!-- 输入框 -->
-        <FullText high="300px" />
+        <FullText high="300px" v-model:html="valueHtml" />
         <!-- 操作按钮 -->
         <div class="action-buttons">
-          <el-button type="primary">提交</el-button>
+          <el-button type="primary" @click="submitCommunicateRecord"
+            >提交</el-button
+          >
         </div>
       </el-card>
 
       <!--回复消息展示-->
       <el-card style="height: 600px">
-        <el-scrollbar height="400px">
+        <el-scrollbar height="550px">
           <div ref="innerRef" class="message-box">
-            <p
-              v-for="operateRecord in operateRecordList"
-              :key="operateRecord.id"
-            >
+            <p v-for="(operateRecord, index) in operateRecordList" :key="index">
               <OperateRecord :operate-record="operateRecord" />
               <el-divider />
             </p>
@@ -141,91 +156,285 @@
       </el-card>
     </el-col>
   </el-row>
+  <!-- 接单dialog -->
+  <el-dialog
+    v-model="takeOrderDialogVisible"
+    title="系统提示"
+    width="30%"
+    draggable
+  >
+    <el-text>是否选接下该订单</el-text>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="receiveOrder">确定</el-button>
+        <el-button type="primary" @click="takeOrderDialogVisible = false">
+          取消
+        </el-button>
+      </span>
+    </template>
+  </el-dialog>
+  <!-- 传初稿dialog -->
+  <el-dialog
+    v-model="uploadFirstDraftDialogVisible"
+    title="系统提示"
+    width="30%"
+    draggable
+  >
+    <UploadPict v-model:pictList="imageList" ref="uploadPictRef" />
+    <el-button @click="submitPict">提交</el-button>
+  </el-dialog>
+  <!-- 传源文件dialog -->
+  <el-dialog
+    v-model="uploadSourcefileDialogVisible"
+    title="系统提示"
+    width="30%"
+    draggable
+  >
+    <UploadFile v-model:fileList="fileList" ref="uploadFileRef" />
+    <el-button @click="submitSourcefile">提交</el-button>
+  </el-dialog>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, ref, reactive, nextTick } from "vue";
 import { ElImage } from "element-plus";
 import { ElCard, ElInput, ElDatePicker } from "element-plus";
 
 import { ElScrollbar } from "element-plus";
 import OperateRecord from "./component/operateRecord.vue";
 import FullText from "@/components/FullText/fulltext.vue";
+import {
+  OrderEntity,
+  checkAndAccept,
+  getOrderById
+} from "@/api/activity/order";
+import {
+  ReceOrderEntity,
+  getReceOrderById,
+  saveReceOrder
+} from "@/api/activity/receiveOrder";
+import { useRoute } from "vue-router";
+import { ElMessage } from "element-plus";
+import {
+  ActivityFileEntity,
+  getActivityById,
+  getFileByActId
+} from "@/api/activity/activity";
+import { fileType, getStoreUser, pictType } from "@/api/utils";
+import { uploadFirstDraft, uploadFirstSourcefile } from "@/api/activity/file";
+import UploadPict from "@/components/Pict/uploadPict.vue";
+import UploadFile from "@/components/File/uploadFile.vue";
+import {
+  CommunicateRecordEntity,
+  getCommunicateRecordByOrderId,
+  saveCommunicateRecord
+} from "@/api/activity/communicateRecord";
 
-const obj = {
-  id: "1",
-  operator: "王某某万福",
-  operateDate: "2023/10/31 18:20:20",
-  dynamic: "提出需要水果速度快点"
+const route = useRoute();
+
+// 富文本框沟通内容
+const valueHtml = ref("");
+
+const url = ref("");
+// 记录当前用户
+const currentUser = getStoreUser();
+const entity = new CommunicateRecordEntity();
+
+const submitCommunicateRecord = () => {
+  if (valueHtml.value.trim() === "") {
+    ElMessage.error("沟通内容不能为空");
+  } else {
+    // 保存
+    entity.uploaderId = currentUser.id;
+    entity.uploaderName = currentUser.username;
+    entity.content = valueHtml.value;
+    entity.orderId = orderForm.id;
+    debugger;
+    console.log(entity);
+    saveCommunicateRecord(entity).then(res => {
+      console.log(res);
+      if (res.code === 0) {
+        ElMessage.success("提交成功");
+        // 跟新沟通数据
+        getRecordData();
+      } else {
+        ElMessage.error("提交失败: " + res.msg);
+      }
+    });
+  }
 };
 
 // 操作记录集合
-const operateRecordList = [obj, obj, obj, obj, obj, obj, obj, obj, obj];
+const operateRecordList = ref<Array<CommunicateRecordEntity>>([]);
 
 const max = ref(0);
-const value = ref(0);
 const innerRef = ref<HTMLDivElement>();
-const scrollbarRef = ref<InstanceType<typeof ElScrollbar>>();
 
-onMounted(() => {
+const role = ref("user");
+
+// orderId
+const id = parseInt(route.params.id);
+
+onMounted(async () => {
   max.value = innerRef.value!.clientHeight - 380;
+  // 获取角色
+  role.value = getStoreUser().roles[0];
+  // 请求order
+  const orderRes = await getOrderById(id);
+  // 赋值ａｃｔｉｖｉｅＳｔｅａｐ
+  const status = orderRes.data.status;
+  if (status === "待接单") {
+    activeStep.value = 0;
+  } else if (status === "进行中") {
+    activeStep.value = 1;
+  } else if (status === "待验收") {
+    activeStep.value = 2;
+  } else if (status === "已完成") {
+    activeStep.value = 4;
+  }
+  console.log(orderRes);
+  if (orderRes.code !== 0) {
+    ElMessage.error("订单数据获取失败: " + orderRes.msg);
+  } else {
+    orderForm.setValueFromEntity(orderRes.data);
+  }
+  // 请求rece_order
+  getReceOrderById(id).then(res => {
+    console.log(res);
+    receiveForm.setValueFromEntity(res.data);
+  });
+  // 请求活动文件
+  getFileByActId(orderRes.data.actId, pictType).then(res => {
+    console.log(res);
+    url.value = res.data[0].url;
+  });
+  // 查询沟通数据
+  getRecordData();
 });
 
-const inputSlider = (value: number) => {
-  scrollbarRef.value!.setScrollTop(value);
-};
-const scroll = ({ scrollTop }) => {
-  value.value = scrollTop;
-};
-const formatTooltip = (value: number) => {
-  return `${value} px`;
+/** 根据orderId查询沟通数据 */
+const getRecordData = () => {
+  getCommunicateRecordByOrderId(id).then(res => {
+    console.log(res);
+    if (res.code === 0) {
+      operateRecordList.value = res.data;
+    }
+  });
 };
 
 const activeStep = ref(2); // 活跃的步骤，可以根据需要动态改变
-const orderForm = ref({
-  idNumber: "12345678910", // 证件编号
-  submissionDate: "2023-9-30", // 提交时间
-  demandStore: "正荣张万福", // 需要门店
-  demandDate: "2023/11/05", // 需求时间
-  festival: "-", // 节日
-  usage: "线上引流", // 用途
-  topic: "双十一", // 专题
-  brand: "通用", // 品牌
-  material: "活动海报" // 活动海报
-});
+const orderForm = reactive(new OrderEntity());
 
-const receiveForm = ref({
-  orderReceiptDate: "2023/10/31",
-  designer: "小兰",
-  firstDraftDate: "2023/10/31",
-  finalDraftDate: "2023/10/31",
-  completionDate: "-",
-  contactPhone: "18548526541",
-  orderStatus: "待验收"
-});
+const receiveForm = reactive(new ReceOrderEntity());
 
-// 你可以将这个URL替换成你的海报图片地址
-const posterUrl = ref(
-  "https://feigebuge.oss-cn-beijing.aliyuncs.com/QQ%E5%9B%BE%E7%89%8720230819130111.gif"
-);
+const takeOrderDialogVisible = ref(false);
 
-interface Order {
-  id: string;
-  submitTime: string;
-  username: string;
-  // 根据需要添加其他属性
-}
+/** 接单button触发事件 */
+const handleClickTakeOrder = row => {
+  console.log(row);
+  takeOrderDialogVisible.value = true;
+};
 
-const order = ref<Order>({
-  id: "",
-  submitTime: "",
-  username: ""
-  // 初始化其他属性
-});
+/** 接单 */
+const receiveOrder = async () => {
+  const data = new ReceOrderEntity(orderForm.id);
+  console.log(data);
+  const res = await saveReceOrder(data);
+  console.log(res);
+  if (res.code === 0) {
+    ElMessage.success("接单成功");
+  } else {
+    ElMessage.error("接单失败: " + res.msg);
+  }
+  takeOrderDialogVisible.value = false;
+};
 
-const submitForm = () => {
-  // 在这里实现表单提交逻辑
-  console.log(order.value);
+const imageList = ref<Array<ActivityFileEntity>>([]);
+const fileList = ref<Array<ActivityFileEntity>>([]);
+
+const uploadPictRef = ref(null);
+const uploadFileRef = ref(null);
+
+const uploadFirstDraftDialogVisible = ref(false);
+const uploadSourcefileDialogVisible = ref(false);
+
+const submitPict = async () => {
+  console.log("图片上传服务器");
+  console.log(imageList.value);
+  const data = new FormData();
+  for (let i = 0; i < imageList.value.length; ++i) {
+    data.append("file", imageList.value[i].raw);
+  }
+  const res = await uploadFirstDraft(
+    data,
+    orderForm.actId,
+    pictType,
+    orderForm.id
+  );
+  console.log(res);
+  if (res.code === 0) {
+    ElMessage.success("上传成功");
+    return true;
+  } else {
+    ElMessage.error("图片上传失败:" + res.msg);
+    return false;
+  }
+};
+
+const submitSourcefile = async () => {
+  // 创建formData
+  console.log("文件上传服务器");
+  console.log(fileList);
+  const data = new FormData();
+  for (let i = 0; i < fileList.value.length; ++i) {
+    data.append("file", fileList.value[i].raw);
+  }
+  const res = await uploadFirstSourcefile(
+    data,
+    orderForm.actId,
+    fileType,
+    orderForm.id
+  );
+  console.log(res);
+  if (res.code === 0) {
+    ElMessage.success("上传成功");
+    return true;
+  } else {
+    ElMessage.error("文件上传失败:" + res.msg);
+    return false;
+  }
+};
+
+const handleClickPassDraft = () => {
+  // 清除数据
+  imageList.value = [];
+  uploadFirstDraftDialogVisible.value = true;
+  nextTick(() => {
+    uploadPictRef.value.setData([]);
+  });
+};
+
+/** 传源文件button触发事件 */
+const handleClickPassSouceFile = () => {
+  // 清除数据
+  fileList.value = [];
+  uploadSourcefileDialogVisible.value = true;
+  nextTick(() => {
+    uploadFileRef.value.setData([]);
+  });
+};
+
+const handleCheckAndAccept = () => {
+  console.log(orderForm);
+  // 验收, 修改order
+  checkAndAccept(orderForm.id).then(res => {
+    if (res.code === 0) {
+      ElMessage.success("验收成功");
+      location.reload();
+    } else {
+      ElMessage.error("验收失败 " + res.msg);
+    }
+  });
 };
 </script>
 
