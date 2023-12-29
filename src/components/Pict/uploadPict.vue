@@ -5,6 +5,7 @@ import type { UploadProps } from "element-plus";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { deleteFile } from "@/api/activity/file";
 import { ActivityFileEntity } from "@/api/activity/activity";
+import { getFilenameFromURL } from "@/api/utils";
 
 const props = defineProps({
   pictList: {
@@ -81,7 +82,9 @@ const beforeRemove: UploadProps["beforeRemove"] = (uploadFile, uploadFiles) => {
 
 // 暴露给父组件
 function setData(value) {
-  console.log(value);
+  value.forEach(item => {
+    item.name = getFilenameFromURL(item.url);
+  });
   multipartFileList.value = value;
 }
 

@@ -3,6 +3,7 @@ import { ref, defineProps, watch, defineExpose } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { ActivityFileEntity } from "@/api/activity/activity";
 import { deleteFile } from "@/api/activity/file";
+import { getFilenameFromURL } from "@/api/utils";
 
 const props = defineProps({
   fileList: {
@@ -63,15 +64,6 @@ const beforeRemove: UploadProps["beforeRemove"] = (uploadFile, uploadFiles) => {
     },
     () => false
   );
-};
-
-const getFilenameFromURL = (url: String) => {
-  // 去除URL的协议（http, https, etc.）
-  const filePath = url.split("://")[1];
-  // 去除URL的主机部分（域名或IP地址）
-  const fileName = filePath.split("/")[filePath.split("/").length - 1];
-  // 返回文件名
-  return fileName;
 };
 
 // 暴露给父组件

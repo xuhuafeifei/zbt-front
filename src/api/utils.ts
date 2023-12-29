@@ -42,3 +42,12 @@ export const getStoreUser = () => {
   console.log(res);
   return JSON.parse(res);
 };
+
+export const getFilenameFromURL = (url: String) => {
+  // 去除URL的协议（http, https, etc.）
+  const filePath = url.split("://")[1];
+  // 去除URL的主机部分（域名或IP地址）
+  const fileName = filePath.split("/")[filePath.split("/").length - 1];
+  // 返回文件名
+  return fileName;
+};

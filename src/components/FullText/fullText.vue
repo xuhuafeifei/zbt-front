@@ -80,8 +80,7 @@ const emits = defineEmits(["update:html"]);
 const editorRef = shallowRef();
 
 // 模拟 ajax 异步获取内容
-onMounted(() => {
-});
+onMounted(() => {});
 
 const toolbarConfig = {};
 // 初始化 MENU_CONF 属性
@@ -91,6 +90,11 @@ const editorConfig: Partial<IEditorConfig> = {
 
 // 配置图片上传地址
 editorConfig.MENU_CONF["uploadImage"] = {
+  server: activityUrlApi("file/fullTextImage")
+};
+
+// 配置视频上传地址
+editorConfig.MENU_CONF["uploadVideo"] = {
   server: activityUrlApi("file/fullTextImage")
 };
 

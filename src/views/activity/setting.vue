@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, Ref, nextTick, reactive, onMounted } from "vue";
+import { ref, Ref, nextTick, reactive, onMounted, watch } from "vue";
 import { ElTable, ElTableColumn, ElButton } from "element-plus";
 import {
   OptionEntity,
@@ -67,6 +67,12 @@ const search = () => {
 onMounted(() => {
   search();
 });
+
+watch(typeName, (newValue, oldValue) => {
+  if (newValue !== oldValue) {
+    search();
+  }
+});
 </script>
 
 <template>
@@ -79,9 +85,9 @@ onMounted(() => {
         :value="item"
       />
     </el-select>
-    <el-button style="margin-bottom: 9px" type="primary" @click="search"
+    <!-- <el-button style="margin-bottom: 9px" type="primary" @click="search"
       >查询</el-button
-    >
+    > -->
     <el-button style="margin-bottom: 9px" type="primary" @click="handleAdd"
       >新增{{ typeName }}</el-button
     >

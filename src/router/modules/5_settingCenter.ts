@@ -9,6 +9,7 @@ export default {
   meta: {
     icon: "settingIcon",
     title: "设置中心",
+    showLink: false,
     rank: 0
   },
   children: [

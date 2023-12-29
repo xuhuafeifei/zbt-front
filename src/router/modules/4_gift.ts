@@ -9,6 +9,7 @@ export default {
   meta: {
     icon: "giftFill",
     title: "礼品库",
+    showLink: false,
     rank: 0
   },
   children: [

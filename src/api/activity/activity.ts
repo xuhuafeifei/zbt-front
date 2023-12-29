@@ -79,6 +79,8 @@ export class ActivityDto {
   topic: String;
   /** 品牌 */
   brand: String;
+  /** 适用等级集合 */
+  applicableGradeList: Array<String>;
   /** 适用等级 */
   applicableGrade: String;
   /** 活动介绍 */
@@ -87,6 +89,12 @@ export class ActivityDto {
   picturesUrl: Array<ActivityFileEntity>;
   /** 活动文件集合 */
   sourcefilesUrl: Array<ActivityFileEntity>;
+
+  materialList: Array<String>;
+  useColList: Array<String>;
+  festivalList: Array<String>;
+  topicList: Array<String>;
+  brandList: Array<String>;
 
   constructor() {
     this.name = "";
@@ -98,9 +106,16 @@ export class ActivityDto {
     this.topic = "";
     this.brand = "";
     this.applicableGrade = "";
+    this.applicableGradeList = new Array<String>();
     this.picturesUrl = new Array<ActivityFileEntity>();
     this.schemeIntro = "";
     this.sourcefilesUrl = new Array<ActivityFileEntity>();
+
+    this.materialList = new Array<String>();
+    this.brandList = new Array<String>();
+    this.festivalList = new Array<String>();
+    this.topicList = new Array<String>();
+    this.festivalList = new Array<String>();
   }
 
   setValueFromEntity(dto: ActivityDto) {
@@ -114,15 +129,30 @@ export class ActivityDto {
     this.festival = dto.festival;
     this.topic = dto.topic;
     this.applicableGrade = dto.applicableGrade;
+    this.applicableGradeList = dto.applicableGrade.split(",");
     this.picturesUrl = dto.picturesUrl;
     this.schemeIntro = dto.schemeIntro;
     this.sourcefilesUrl = dto.sourcefilesUrl;
+
+    this.brandList = dto.brandList;
+    this.materialList = dto.materialList;
+    this.topicList = dto.topicList;
+    this.festivalList = dto.festivalList;
+    this.useColList = dto.useColList;
   }
 
   toEntity(): ActivityEntity {
     const entity = new ActivityEntity();
     entity.setValueFromEntity(this);
     return entity;
+  }
+
+  toSubmitDto(): ActivityDto {
+    const dto = new ActivityDto();
+    dto.setValueFromEntity(this);
+    dto.sourcefilesUrl = null;
+    dto.picturesUrl = null;
+    return dto;
   }
 }
 
@@ -161,14 +191,14 @@ export const getActivityOptionSelectDto = () => {
 };
 
 /** 保存活动表单 */
-export const saveActivity = (data?: ActivityEntity) => {
+export const saveActivity = (data?: ActivityDto) => {
   return http.request<R<Number>>("post", activityUrlApi("activity/save"), {
     data
   });
 };
 
 /** 修改活动表单 */
-export const updateActivity = (data?: ActivityEntity) => {
+export const updateActivity = (data?: ActivityDto) => {
   return http.request<R<String>>("post", activityUrlApi("activity/update"), {
     data
   });

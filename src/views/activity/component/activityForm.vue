@@ -7,7 +7,8 @@ import {
   getActivityOptionSelectDto,
   ActivityFileEntity,
   saveActivity,
-  updateActivity
+  updateActivity,
+  getActivityOptionDto
 } from "@/api/activity/activity";
 import { ElMessage } from "element-plus";
 import UploadPict from "@/components/Pict/uploadPict.vue";
@@ -26,15 +27,15 @@ const festivalList = ref([]);
 const specialTopicList = ref([]);
 const brandList = ref([]);
 
-onMounted(() => {
-  getActivityOptionSelectDto().then(res => {
-    console.log(res);
-    materialList.value = res.data.materialList;
-    useList.value = res.data.useList;
-    festivalList.value = res.data.festivalList;
-    specialTopicList.value = res.data.topicList;
-    brandList.value = res.data.brandList;
-  });
+onMounted(async () => {
+  const res = await getActivityOptionDto();
+  console.log(res);
+  materialList.value = res.data.materialList;
+  useList.value = res.data.useList;
+  festivalList.value = res.data.festivalList;
+  specialTopicList.value = res.data.topicList;
+  brandList.value = res.data.brandList;
+  console.log(materialList.value);
 });
 
 const gradeList = ["白银会员", "黄金会员", "钻石会员"];
@@ -54,10 +55,10 @@ function init(newData) {
   imageList.value = [];
   fileList.value = [];
   // 清空子组件数据
-
   if (newData === null || newData === undefined) {
     title.value = "新增表单";
     formData.setValueFromEntity(new ActivityDto());
+    console.log(formData);
     nextTick(() => {
       uploadFileRef.value.setData([]);
       uploadPictRef.value.setData([]);
@@ -87,7 +88,7 @@ const submitForm = async () => {
   console.log(formData);
   if (formData.id === undefined || formData.id === null) {
     // save
-    const res = await saveActivity(formData.toEntity());
+    const res = await saveActivity(formData.toSubmitDto());
     // 为formData赋值id
     formData.id = res.data;
     console.log(res);
@@ -99,7 +100,7 @@ const submitForm = async () => {
     }
   } else {
     // update
-    const res = await updateActivity(formData.toEntity());
+    const res = await updateActivity(formData.toSubmitDto());
     console.log(res);
     if (res.code === 0) {
       ElMessage.success("表单修改成功");
@@ -109,13 +110,11 @@ const submitForm = async () => {
     }
   }
   // 提交图片
-  submitPict();
+  await submitPict();
   // 提交文件
-  submitFile();
-  // 点击提交按钮后, 确保窗口不会被关闭
-  // 表单需要手动关闭, 以保证以同步的方式触发父组件的数据更新
-  // 不建议修改此处逻辑, 否则picturesUrl, sourcefilesUrl可能无法显示最新数据
-  dialogVisible.value = true;
+  await submitFile();
+  dialogVisible.value = false;
+  emit("refreshDataList");
 };
 
 // 定义发射的事件
@@ -200,31 +199,26 @@ const beforeClose = async (done: () => void) => {
     <el-dialog
       :title="title"
       v-model="dialogVisible"
-      style="width: 600px; align-center: true"
+      style="width: 700px; align-center: true"
       :before-close="beforeClose"
       align-center
       center
     >
       <el-form :model="formData">
-        <el-row>
-          <el-col :span="10" style="margin-right: 30px">
-            <el-form-item label="活动名称">
-              <el-input v-model="formData.name" />
-            </el-form-item>
-          </el-col>
-          <!-- <el-col :span="10">
-            <el-form-item label="上传时间">
-              <el-date-picker
-                v-model="formData.uploadTime"
-                type="datetime"
-                placeholder="上传时间"
-              />
-            </el-form-item>
-          </el-col> -->
-        </el-row>
-        <!-- 5个下拉框 -->
-        <el-form-item>
-          <el-select
+        <el-form-item label="活动名称" style="width: 100%">
+          <el-input v-model="formData.name" style="width: 100%" />
+        </el-form-item>
+        <!-- 5个多选框-->
+        <el-form-item label="物料">
+          <el-checkbox-group v-model="formData.materialList">
+            <el-checkbox
+              v-for="item in materialList"
+              :key="item"
+              :label="item"
+              >{{ item }}</el-checkbox
+            >
+          </el-checkbox-group>
+          <!-- <el-select
             v-model="formData.material"
             placeholder="物料"
             class="m-2"
@@ -288,16 +282,50 @@ const beforeClose = async (done: () => void) => {
               :label="item.label"
               :value="item.value"
             />
-          </el-select>
+          </el-select> -->
+        </el-form-item>
+        <el-form-item label="用途">
+          <el-checkbox-group v-model="formData.useColList">
+            <el-checkbox v-for="item in useList" :key="item" :label="item">{{
+              item
+            }}</el-checkbox>
+          </el-checkbox-group>
+        </el-form-item>
+        <el-form-item label="节日">
+          <el-checkbox-group v-model="formData.festivalList">
+            <el-checkbox
+              v-for="item in festivalList"
+              :key="item"
+              :label="item"
+              >{{ item }}</el-checkbox
+            >
+          </el-checkbox-group>
+        </el-form-item>
+        <el-form-item label="主题">
+          <el-checkbox-group v-model="formData.topicList">
+            <el-checkbox
+              v-for="item in specialTopicList"
+              :key="item"
+              :label="item"
+              >{{ item }}</el-checkbox
+            >
+          </el-checkbox-group>
+        </el-form-item>
+        <el-form-item label="品牌">
+          <el-checkbox-group v-model="formData.brandList">
+            <el-checkbox v-for="item in brandList" :key="item" :label="item">{{
+              item
+            }}</el-checkbox>
+          </el-checkbox-group>
         </el-form-item>
 
         <!-- vip等级选择 -->
         <el-form-item label="适用等级">
-          <el-radio-group v-model="formData.applicableGrade" :max="1">
-            <el-radio v-for="grade in gradeList" :key="grade" :label="grade">{{
-              grade
-            }}</el-radio>
-          </el-radio-group>
+          <el-checkbox-group v-model="formData.applicableGradeList">
+            <el-checkbox v-for="item in gradeList" :key="item" :label="item">{{
+              item
+            }}</el-checkbox>
+          </el-checkbox-group>
         </el-form-item>
 
         <el-form-item label="图片上传">

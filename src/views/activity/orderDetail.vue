@@ -146,12 +146,17 @@
       <!--回复消息展示-->
       <el-card style="height: 600px">
         <el-scrollbar height="550px">
-          <div ref="innerRef" class="message-box">
-            <p v-for="(operateRecord, index) in operateRecordList" :key="index">
-              <OperateRecord :operate-record="operateRecord" />
-              <el-divider />
-            </p>
-          </div>
+          <el-card style="margin-bottom: 20px">
+            <div ref="innerRef" class="message-box">
+              <p
+                v-for="(operateRecord, index) in operateRecordList"
+                :key="index"
+              >
+                <OperateRecord :operate-record="operateRecord" />
+                <el-divider >the end </el-divider>
+              </p>
+            </div>
+          </el-card>
         </el-scrollbar>
       </el-card>
     </el-col>

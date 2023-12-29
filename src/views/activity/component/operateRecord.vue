@@ -111,7 +111,7 @@ onMounted(() => {
 <style lang="scss" scoped>
 /* 卡牌 */
 .message-box {
-  background-color: #5f5c5c55; /* 灰色背景 */
+  background-color: #211e1e55; /* 灰色背景 */
   border-radius: 10px; /* 圆角边框 */
   padding: 20px; /* 内边距 */
 }
@@ -127,7 +127,7 @@ onMounted(() => {
 }
 
 .message-date {
-  color: #999; /* 灰色字体 */
+  color: #2a2828; /* 灰色字体 */
 }
 
 .message-content {
