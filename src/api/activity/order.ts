@@ -118,9 +118,9 @@ export const getOrderList = (data?: ConditionOrder) => {
   );
 };
 
-/** 保存订单数据 */
+/** 保存订单数据, 返回订单id */
 export const saveOrder = (data?: OrderEntity) => {
-  return http.request<R<String>>("post", activityUrlApi("order/save"), {
+  return http.request<R<Number>>("post", activityUrlApi("order/save"), {
     data
   });
 };

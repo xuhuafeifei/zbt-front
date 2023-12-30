@@ -23,6 +23,10 @@ import UploadPict from "@/components/Pict/uploadPict.vue";
 import UploadFile from "@/components/File/uploadFile.vue";
 import { ActivityFileEntity } from "@/api/activity/activity";
 import { uploadFirstDraft, uploadFirstSourcefile } from "@/api/activity/file";
+import {
+  CommunicateRecordEntity,
+  saveCommunicateRecord
+} from "@/api/activity/communicateRecord";
 
 const router = useRouter();
 const searchText = ref("");
@@ -218,12 +222,43 @@ const submitPict = async () => {
   console.log(res);
   if (res.code === 0) {
     ElMessage.success("上传成功");
+    // 提交到communicateRecord
+    const valueHtml = getPictValueHtml(res.data);
+    submitCommunicateRecordByPict(selectedRow.value.id, valueHtml);
     return true;
   } else {
     ElMessage.error("图片上传失败:" + res.msg);
     return false;
   }
 };
+
+// 根据图片url, 返回对应的html标签内容
+const getPictValueHtml = (url: String) => {
+  return '<p><img src="' + url + '" alt="" data-href="" style=""/></p>';
+};
+
+// 记录当前用户
+const currentUser = getStoreUser();
+const entity = new CommunicateRecordEntity();
+
+const submitCommunicateRecordByPict = (orderId: Number, valueHtml: String) => {
+  // 保存
+  entity.uploaderId = currentUser.id;
+  entity.uploaderName = currentUser.username;
+  entity.content = valueHtml;
+  entity.orderId = orderId;
+  console.log(entity);
+  saveCommunicateRecord(entity).then(res => {
+    console.log(res);
+    if (res.code === 0) {
+      ElMessage.success("提交成功");
+    } else {
+      ElMessage.error("提交失败: " + res.msg);
+    }
+  });
+};
+
+const limitNumber = 1;
 
 const submitSourcefile = async () => {
   // 创建formData
@@ -363,7 +398,11 @@ const submitSourcefile = async () => {
       width="30%"
       draggable
     >
-      <UploadPict v-model:pictList="imageList" ref="uploadPictRef" />
+      <UploadPict
+        v-model:pictList="imageList"
+        ref="uploadPictRef"
+        v-model:limit="limitNumber"
+      />
       <el-button @click="submitPict">提交</el-button>
     </el-dialog>
     <!-- 传源文件dialog -->
@@ -373,7 +412,11 @@ const submitSourcefile = async () => {
       width="30%"
       draggable
     >
-      <UploadFile v-model:fileList="fileList" ref="uploadFileRef" />
+      <UploadFile
+        v-model:fileList="fileList"
+        ref="uploadFileRef"
+        v-model:limit="limitNumber"
+      />
       <el-button @click="submitSourcefile">提交</el-button>
     </el-dialog>
   </div>

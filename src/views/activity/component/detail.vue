@@ -6,6 +6,11 @@ import { ElMessage } from "element-plus";
 import { OrderEntity, saveOrder } from "@/api/activity/order";
 import { getStoreUser, sleep } from "@/api/utils";
 import { useRouter } from "vue-router";
+import {
+  CommunicateRecordEntity,
+  saveCommunicateRecord
+} from "@/api/activity/communicateRecord";
+import FullText from "@/components/FullText/fulltext.vue";
 
 const router = useRouter();
 
@@ -52,19 +57,48 @@ const download = () => {
 };
 
 /** 下订单 */
-const takeOrder = () => {
+const takeOrder = async () => {
   console.log(formData);
-  saveOrder(formData).then(res => {
-    console.log(res);
-    if (res.code === 0) {
-      ElMessage.success("下单成功");
-      sleep(500);
-      router.push("/activity/order");
-    } else {
-      ElMessage.error("下单失败: " + res.msg);
-    }
-  });
+  const res = await saveOrder(formData);
+  console.log(res);
+  if (res.code === 0) {
+    ElMessage.success("下单成功");
+    sleep(500);
+    router.push("/activity/order");
+  } else {
+    ElMessage.error("下单失败: " + res.msg);
+  }
+  // 保存recordOrder
+  submitCommunicateRecord(res.data);
 };
+
+// 记录当前用户
+const currentUser = getStoreUser();
+const entity = new CommunicateRecordEntity();
+
+const submitCommunicateRecord = (orderId: Number) => {
+  if (valueHtml.value.trim() === "") {
+    ElMessage.error("沟通内容不能为空");
+  } else {
+    // 保存
+    entity.uploaderId = currentUser.id;
+    entity.uploaderName = currentUser.username;
+    entity.content = valueHtml.value;
+    entity.orderId = orderId;
+    console.log(entity);
+    saveCommunicateRecord(entity).then(res => {
+      console.log(res);
+      if (res.code === 0) {
+        ElMessage.success("提交成功");
+      } else {
+        ElMessage.error("提交失败: " + res.msg);
+      }
+    });
+  }
+};
+
+// 富文本框沟通内容
+const valueHtml = ref("");
 
 const formData = reactive(new OrderEntity());
 </script>
@@ -114,44 +148,127 @@ const formData = reactive(new OrderEntity());
       <el-dialog
         v-model="chooseDialogVisible"
         title="系统提示"
-        width="30%"
+        width="50%"
         draggable
       >
         <el-text>是否选择该活动设计方案</el-text>
         <el-divider />
-        <el-form :model="formData">
-          <el-form-item label="订单时间">
-            <el-date-picker
-              type="datetime"
-              v-model="formData.orderTime"
-              disabled
-            />
-          </el-form-item>
-          <el-form-item label="需求时间">
-            <el-date-picker
-              type="datetime"
-              v-model="formData.demandTime"
-              value-format="YYYY-MM-DD hh:mm:ss"
-            />
-          </el-form-item>
+        <el-text style="font-size: large; font-weight: bold">订单信息</el-text>
+        <el-form :model="formData" style="margin-top: 10px">
+          <el-row>
+            <el-form-item label="订单时间">
+              <el-date-picker
+                type="datetime"
+                v-model="formData.orderTime"
+                disabled
+              />
+            </el-form-item>
+            <el-form-item label="需求时间" style="margin-left: 10px">
+              <el-date-picker
+                type="datetime"
+                v-model="formData.demandTime"
+                value-format="YYYY-MM-DD hh:mm:ss"
+              />
+            </el-form-item>
+          </el-row>
           <el-form-item label="需求门店">
             <el-input v-model="formData.demandStore" />
           </el-form-item>
-          <el-form-item label="物料">
-            <el-input v-model="formData.material" disabled />
-          </el-form-item>
-          <el-form-item label="用途">
-            <el-input v-model="formData.useCol" disabled />
-          </el-form-item>
-          <el-form-item label="节日">
-            <el-input v-model="formData.festival" disabled />
-          </el-form-item>
-          <el-form-item label="专题">
-            <el-input v-model="formData.topic" disabled />
-          </el-form-item>
-          <el-form-item label="品牌">
-            <el-input v-model="formData.brand" disabled />
-          </el-form-item>
+          <!-- <el-row>
+            <el-form-item label="物料" style="margin-right: 60px">
+              <el-input v-model="formData.material" disabled />
+            </el-form-item>
+            <el-form-item label="用途">
+              <el-input v-model="formData.useCol" disabled />
+            </el-form-item>
+          </el-row>
+          <el-row>
+            <el-form-item label="节日" style="margin-right: 60px">
+              <el-input v-model="formData.festival" disabled />
+            </el-form-item>
+            <el-form-item label="专题">
+              <el-input v-model="formData.topic" disabled />
+            </el-form-item>
+          </el-row>
+          <el-row>
+            <el-form-item label="品牌">
+              <el-input v-model="formData.brand" disabled />
+            </el-form-item>
+          </el-row> -->
+          <el-divider />
+          <el-text style="font-size: large; font-weight: bold"
+            >基本信息</el-text
+          >
+          <el-descriptions
+            class="margin-top"
+            :column="2"
+            :size="size"
+            border
+            style="margin-top: 10px"
+          >
+            <el-descriptions-item>
+              <template #label>
+                <div class="cell-item">
+                  <el-icon :style="iconStyle">
+                    <user />
+                  </el-icon>
+                  物料
+                </div>
+              </template>
+              {{ formData.material }}
+            </el-descriptions-item>
+            <el-descriptions-item>
+              <template #label>
+                <div class="cell-item">
+                  <el-icon :style="iconStyle">
+                    <iphone />
+                  </el-icon>
+                  品牌
+                </div>
+              </template>
+              {{ formData.brand }}
+            </el-descriptions-item>
+            <el-descriptions-item>
+              <template #label>
+                <div class="cell-item">
+                  <el-icon :style="iconStyle">
+                    <location />
+                  </el-icon>
+                  用途
+                </div>
+              </template>
+              {{ formData.useCol }}
+            </el-descriptions-item>
+            <el-descriptions-item>
+              <template #label>
+                <div class="cell-item">
+                  <el-icon :style="iconStyle">
+                    <tickets />
+                  </el-icon>
+                  节日
+                </div>
+              </template>
+              <!-- <el-tag size="small">{{ formData.festival }}</el-tag> -->
+              {{ formData.festival }}
+            </el-descriptions-item>
+            <el-descriptions-item>
+              <template #label>
+                <div class="cell-item">
+                  <el-icon :style="iconStyle">
+                    <office-building />
+                  </el-icon>
+                  专题
+                </div>
+              </template>
+              {{ formData.topic }}
+            </el-descriptions-item>
+          </el-descriptions>
+          <el-divider />
+          <el-text style="font-size: large; font-weight: bold"
+            >修改意见</el-text
+          >
+          <!-- 输入框 -->
+          <FullText high="200px" v-model:html="valueHtml" />
         </el-form>
         <template #footer>
           <span class="dialog-footer">

@@ -52,7 +52,7 @@ export const deleteFileList = (data?: Array<ActivityFileEntity>) => {
   );
 };
 
-/** 传递初稿, 并修改接单表中上传信息 */
+/** 传递初稿, 并修改接单表中上传信息, 返回图片url */
 export const uploadFirstDraft = (
   data: FormData,
   actId: Number,

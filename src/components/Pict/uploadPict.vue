@@ -55,7 +55,9 @@ const httpRequest = () => {
 };
 
 const handleExceed: UploadProps["onExceed"] = (files, uploadFiles) => {
-  ElMessage.warning(`文件限制是 4, 选择了的文件数量是${files.length}`);
+  ElMessage.warning(
+    `文件限制是 ${props.limit}, 选择了的文件数量是${files.length}`
+  );
 };
 
 const beforeRemove: UploadProps["beforeRemove"] = (uploadFile, uploadFiles) => {
@@ -101,7 +103,7 @@ defineExpose({ setData });
     multiple
     :http-request="httpRequest"
     :before-remove="beforeRemove"
-    :limit="4"
+    :limit="limit"
     :on-exceed="handleExceed"
   >
     <el-icon><Plus /></el-icon>

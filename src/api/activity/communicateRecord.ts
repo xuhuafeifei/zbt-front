@@ -17,6 +17,8 @@ export class CommunicateRecordEntity {
   orderId: Number;
   /** 消息发送时间 */
   uploadTime: String;
+  /** 子评论集合 */
+  childrenList: Array<CommunicateRecordEntity>;
 }
 
 /** 查询活动库下的素材, 关于订单id为order_id的沟通信息 */

@@ -117,6 +117,11 @@
                   >验收</el-button
                 >
               </template>
+              <template v-if="orderForm.status === '已完成' && role === 'user'">
+                <el-button type="primary" @click="download"
+                  >下载源文件</el-button
+                >
+              </template>
             </div>
           </el-row>
         </div>
@@ -134,7 +139,7 @@
           沟通记录
         </div>
         <!-- 输入框 -->
-        <FullText high="300px" v-model:html="valueHtml" />
+        <FullText high="300px" v-model:html="valueHtml" ref="fullTextRef" />
         <!-- 操作按钮 -->
         <div class="action-buttons">
           <el-button type="primary" @click="submitCommunicateRecord"
@@ -150,10 +155,13 @@
             <div ref="innerRef" class="message-box">
               <p
                 v-for="(operateRecord, index) in operateRecordList"
-                :key="index"
+                :key="operateRecord.id"
               >
-                <OperateRecord :operate-record="operateRecord" />
-                <el-divider >the end </el-divider>
+                <OperateRecord
+                  :operate-record="operateRecord"
+                  @refreshDataList="getRecordData"
+                />
+                <!-- <el-divider>the end </el-divider> -->
               </p>
             </div>
           </el-card>
@@ -185,7 +193,11 @@
     width="30%"
     draggable
   >
-    <UploadPict v-model:pictList="imageList" ref="uploadPictRef" />
+    <UploadPict
+      v-model:pictList="imageList"
+      ref="uploadPictRef"
+      v-model:limit="limitNumber"
+    />
     <el-button @click="submitPict">提交</el-button>
   </el-dialog>
   <!-- 传源文件dialog -->
@@ -195,7 +207,11 @@
     width="30%"
     draggable
   >
-    <UploadFile v-model:fileList="fileList" ref="uploadFileRef" />
+    <UploadFile
+      v-model:fileList="fileList"
+      ref="uploadFileRef"
+      v-model:limit="limitNumber"
+    />
     <el-button @click="submitSourcefile">提交</el-button>
   </el-dialog>
 </template>
@@ -245,6 +261,8 @@ const url = ref("");
 const currentUser = getStoreUser();
 const entity = new CommunicateRecordEntity();
 
+const fullTextRef = ref(null);
+
 const submitCommunicateRecord = () => {
   if (valueHtml.value.trim() === "") {
     ElMessage.error("沟通内容不能为空");
@@ -254,12 +272,16 @@ const submitCommunicateRecord = () => {
     entity.uploaderName = currentUser.username;
     entity.content = valueHtml.value;
     entity.orderId = orderForm.id;
-    debugger;
     console.log(entity);
     saveCommunicateRecord(entity).then(res => {
       console.log(res);
       if (res.code === 0) {
         ElMessage.success("提交成功");
+        // 清空输入框
+        valueHtml.value = "";
+        nextTick(() => {
+          fullTextRef.value.setData("");
+        });
         // 跟新沟通数据
         getRecordData();
       } else {
@@ -267,6 +289,17 @@ const submitCommunicateRecord = () => {
       }
     });
   }
+};
+
+/** 下载文件 */
+const download = () => {
+  ElMessage.info("下载源文件");
+  getFileByActId(orderForm.actId, fileType).then(res => {
+    res.data.forEach(item => {
+      console.log(item);
+      window.open(item.url);
+    });
+  });
 };
 
 // 操作记录集合
@@ -352,6 +385,8 @@ const receiveOrder = async () => {
     ElMessage.error("接单失败: " + res.msg);
   }
   takeOrderDialogVisible.value = false;
+  // 刷新界面
+  location.reload();
 };
 
 const imageList = ref<Array<ActivityFileEntity>>([]);
@@ -370,6 +405,7 @@ const submitPict = async () => {
   for (let i = 0; i < imageList.value.length; ++i) {
     data.append("file", imageList.value[i].raw);
   }
+  debugger;
   const res = await uploadFirstDraft(
     data,
     orderForm.actId,
@@ -379,12 +415,41 @@ const submitPict = async () => {
   console.log(res);
   if (res.code === 0) {
     ElMessage.success("上传成功");
+    // 提交到communicateRecord
+    const valueHtml = getPictValueHtml(res.data);
+    submitCommunicateRecordByPict(orderForm.id, valueHtml);
     return true;
   } else {
     ElMessage.error("图片上传失败:" + res.msg);
     return false;
   }
 };
+
+// 根据图片url, 返回对应的html标签内容
+const getPictValueHtml = (url: String) => {
+  return '<p><img src="' + url + '" alt="" data-href="" style=""/></p>';
+};
+
+const submitCommunicateRecordByPict = (orderId: Number, valueHtml: String) => {
+  // 保存
+  entity.uploaderId = currentUser.id;
+  entity.uploaderName = currentUser.username;
+  entity.content = valueHtml;
+  entity.orderId = orderId;
+  console.log(entity);
+  saveCommunicateRecord(entity).then(res => {
+    console.log(res);
+    if (res.code === 0) {
+      ElMessage.success("提交成功");
+      // 更新数据
+      getRecordData();
+    } else {
+      ElMessage.error("提交失败: " + res.msg);
+    }
+  });
+};
+
+const limitNumber = 1;
 
 const submitSourcefile = async () => {
   // 创建formData

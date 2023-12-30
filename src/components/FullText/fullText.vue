@@ -25,7 +25,6 @@
         @onFocus="handleFocus"
         @onBlur="handleBlur"
         @customAlert="customAlert"
-        @customPaste="customPaste"
       />
     </div>
     <!-- <div style="margin-top: 10px">
@@ -90,7 +89,9 @@ const editorConfig: Partial<IEditorConfig> = {
 
 // 配置图片上传地址
 editorConfig.MENU_CONF["uploadImage"] = {
-  server: activityUrlApi("file/fullTextImage")
+  server: activityUrlApi("file/fullTextImage"),
+  // 小于该值就插入 base64 格式（而不上传），默认为 0
+  base64LimitSize: 5 * 1024 // 5kb
 };
 
 // 配置视频上传地址
@@ -128,6 +129,8 @@ const customAlert = (info, type) => {
 };
 const customPaste = (editor, event, callback) => {
   console.log("ClipboardEvent 粘贴事件对象", event);
+
+  debugger;
 
   // 自定义插入内容
   editor.insertText("xxx");
