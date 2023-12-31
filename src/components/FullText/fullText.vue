@@ -51,6 +51,7 @@ import {
 import { Editor, Toolbar } from "@wangeditor/editor-for-vue";
 import { IEditorConfig } from "@wangeditor/editor";
 import { activityUrlApi } from "@/api/utils";
+import { uploadFullTextFile } from "@/api/activity/file";
 
 // 控制组件高度
 const props = defineProps({
@@ -92,12 +93,54 @@ editorConfig.MENU_CONF["uploadImage"] = {
   server: activityUrlApi("file/fullTextImage"),
   // 小于该值就插入 base64 格式（而不上传），默认为 0
   base64LimitSize: 5 * 1024 // 5kb
+  // 单个文件上传成功之后
+  // 自定义上传
+  // async customUpload(file, insertFn) {
+  //   // file 即选中的文件
+  //   // 自己实现上传，并得到图片 url alt href
+  //   const form = new FormData();
+  //   form.append("wangeditor-uploaded-image", file);
+  //   uploadFullTextFile(form).then(response => {
+  //     // console.log(response);
+  //     // 最后插入图片
+  //     insertFn(response.url, "", response.url);
+  //   });
+  // }
 };
 
 // 配置视频上传地址
 editorConfig.MENU_CONF["uploadVideo"] = {
   server: activityUrlApi("file/fullTextImage")
+  // 单个文件上传成功之后
+  // 自定义上传
+  // async customUpload(file, insertFn) {
+  //   // file 即选中的文件
+  //   // 自己实现上传，并得到图片 url alt href
+  //   const form = new FormData();
+  //   form.append("wangeditor-uploaded-image", file);
+  //   uploadFullTextFile(form).then(response => {
+  //     // console.log(response);
+  //     // 最后插入图片
+  //     insertFn(response.url, "", response.url);
+  //   });
+  // }
 };
+
+// editorConfig.MENU_CONF["uploadImage"] = {
+//   // 单个文件上传成功之后
+//   // 自定义上传
+//   async customUpload(file, insertFn) {
+//     // file 即选中的文件
+//     // 自己实现上传，并得到图片 url alt href
+//     const form = new FormData();
+//     form.append("image", file);
+//     uploadFullTextFile(form).then(response => {
+//       // console.log(response);
+//       // 最后插入图片
+//       insertFn(response.url, "", response.url);
+//     });
+//   }
+// };
 
 // 组件销毁时，也及时销毁编辑器，重要！
 onBeforeUnmount(() => {

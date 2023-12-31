@@ -198,6 +198,12 @@
       ref="uploadPictRef"
       v-model:limit="limitNumber"
     />
+    <el-input
+      v-model="remark"
+      autosize
+      type="textarea"
+      placeholder="说明文档"
+    />
     <el-button @click="submitPict">提交</el-button>
   </el-dialog>
   <!-- 传源文件dialog -->
@@ -398,6 +404,8 @@ const uploadFileRef = ref(null);
 const uploadFirstDraftDialogVisible = ref(false);
 const uploadSourcefileDialogVisible = ref(false);
 
+const remark = ref("");
+
 const submitPict = async () => {
   console.log("图片上传服务器");
   console.log(imageList.value);
@@ -416,7 +424,9 @@ const submitPict = async () => {
   if (res.code === 0) {
     ElMessage.success("上传成功");
     // 提交到communicateRecord
-    const valueHtml = getPictValueHtml(res.data);
+    let valueHtml = getPictValueHtml(res.data);
+    // 添加remarkHtml
+    valueHtml += "<p>" + remark.value + "</p>";
     submitCommunicateRecordByPict(orderForm.id, valueHtml);
     return true;
   } else {
@@ -478,6 +488,7 @@ const submitSourcefile = async () => {
 const handleClickPassDraft = () => {
   // 清除数据
   imageList.value = [];
+  remark.value = "";
   uploadFirstDraftDialogVisible.value = true;
   nextTick(() => {
     uploadPictRef.value.setData([]);

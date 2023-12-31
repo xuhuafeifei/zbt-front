@@ -1,6 +1,5 @@
 import { http } from "@/utils/http";
 import { R, activityUrlApi, convertDateToString } from "../utils";
-import { en } from "element-plus/es/locale";
 
 export class OptionDto {
   /** 材料选项列表 */
@@ -113,6 +112,7 @@ export class ActivityDto {
 
     this.materialList = new Array<String>();
     this.brandList = new Array<String>();
+    this.useColList = new Array<String>();
     this.festivalList = new Array<String>();
     this.topicList = new Array<String>();
     this.festivalList = new Array<String>();
@@ -129,7 +129,11 @@ export class ActivityDto {
     this.festival = dto.festival;
     this.topic = dto.topic;
     this.applicableGrade = dto.applicableGrade;
-    this.applicableGradeList = dto.applicableGrade.split(",");
+    if (dto.applicableGrade === "") {
+      this.applicableGradeList = dto.applicableGradeList;
+    } else {
+      this.applicableGradeList = dto.applicableGrade.split(",");
+    }
     this.picturesUrl = dto.picturesUrl;
     this.schemeIntro = dto.schemeIntro;
     this.sourcefilesUrl = dto.sourcefilesUrl;
@@ -149,7 +153,28 @@ export class ActivityDto {
 
   toSubmitDto(): ActivityDto {
     const dto = new ActivityDto();
-    dto.setValueFromEntity(this);
+    dto.id = this.id;
+    dto.name = this.name;
+    dto.uploadTime = this.uploadTime;
+    dto.uploader = this.uploader;
+    dto.material = this.material;
+    dto.brand = this.brand;
+    dto.useCol = this.useCol;
+    dto.festival = this.festival;
+    dto.topic = this.topic;
+    dto.applicableGrade = this.applicableGrade;
+    dto.applicableGradeList = this.applicableGradeList;
+
+    dto.picturesUrl = this.picturesUrl;
+    dto.schemeIntro = this.schemeIntro;
+    dto.sourcefilesUrl = this.sourcefilesUrl;
+
+    dto.brandList = this.brandList;
+    dto.materialList = this.materialList;
+    dto.topicList = this.topicList;
+    dto.festivalList = this.festivalList;
+    dto.useColList = this.useColList;
+
     dto.sourcefilesUrl = null;
     dto.picturesUrl = null;
     return dto;

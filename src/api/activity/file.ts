@@ -93,3 +93,23 @@ export const uploadFirstSourcefile = (
     }
   );
 };
+
+export class FullTextEntity {
+  errno: Number;
+  url: String;
+  message: Number;
+}
+
+/** 富文本框文件传输 */
+export const uploadFullTextFile = (data: FormData) => {
+  return http.request<FullTextEntity>(
+    "post",
+    activityUrlApi("file/fullTextImage"),
+    {
+      data,
+      headers: {
+        "Content-Type": "multipart/form-data"
+      }
+    }
+  );
+};

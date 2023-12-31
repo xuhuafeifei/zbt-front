@@ -9,7 +9,7 @@ export default {
   meta: {
     icon: "boxFill",
     title: "产品库",
-    // showLink: false,
+    showLink: false,
     rank: 0
   },
   children: [

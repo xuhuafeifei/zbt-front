@@ -35,6 +35,8 @@ import { Picture as IconPicture } from "@element-plus/icons-vue";
         <el-card v-for="(item, index) in dataList" :key="index" class="card">
           <!-- :src="item.picturesUrl.length === 0 ? '' : item.picturesUrl[0].url" -->
           <div class="block">
+            <el-text>{{ item.name }}</el-text
+            ><br />
             <el-image
               :src="
                 item.picturesUrl.length === 0 ? '' : item.picturesUrl[0].url

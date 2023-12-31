@@ -50,6 +50,7 @@ const fullTextRef = ref(null);
 
 // 处理父组件传递数据给子组件
 function init(newData) {
+  console.log(newData);
   dialogVisible.value = true;
   // 清空父组件所有数据
   imageList.value = [];
@@ -108,6 +109,11 @@ const submitForm = async () => {
     } else {
       ElMessage.error("表单修改失败:" + res.msg);
     }
+  }
+  // 监测formData.id是否正常
+  if (formData.id === undefined || formData.id === null) {
+    ElMessage.error("表单数据异常, formData.id = " + formData.id);
+    return;
   }
   // 提交图片
   await submitPict();
