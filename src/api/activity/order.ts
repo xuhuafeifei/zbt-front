@@ -99,21 +99,23 @@ export class ConditionOrder {
   limit: Number;
   userId: Number;
   status: String;
+  demandStore: String;
 
   constructor() {
     this.limit = 1;
     this.page = 10;
     this.userId = null;
     this.status = "";
+    this.demandStore = "";
   }
 }
 
 export const getOrderList = (data?: ConditionOrder) => {
-  const { page, limit, userId, status } = data;
+  const { page, limit, userId, status, demandStore } = data;
   return http.request<R<PageUtils<OrderEntity>>>(
     "get",
     activityUrlApi(
-      `order/list?page=${page}&limit=${limit}&userId=${userId}&status=${status}`
+      `order/list?page=${page}&limit=${limit}&userId=${userId}&status=${status}&demandStore=${demandStore}`
     )
   );
 };
@@ -123,6 +125,14 @@ export const saveOrder = (data?: OrderEntity) => {
   return http.request<R<Number>>("post", activityUrlApi("order/save"), {
     data
   });
+};
+
+/** 获取所有demandStore信息 */
+export const getDemandStore = () => {
+  return http.request<R<Array<String>>>(
+    "get",
+    activityUrlApi("order/listAllDemandStore")
+  );
 };
 
 /** 修改订单数据 */

@@ -8,6 +8,7 @@ import { getLogin, refreshTokenApi } from "@/api/user";
 import { UserResult, RefreshTokenResult } from "@/api/user";
 import { useMultiTagsStoreHook } from "@/store/modules/multiTags";
 import { type DataInfo, setToken, removeToken, sessionKey } from "@/utils/auth";
+import { ElMessage } from "element-plus";
 
 export const useUserStore = defineStore({
   id: "pure-user",
@@ -40,6 +41,10 @@ export const useUserStore = defineStore({
       return new Promise<UserResult>((resolve, reject) => {
         getLogin(data)
           .then(data => {
+            console.log(data);
+            if (data.success !== true) {
+              ElMessage.error("登录失败: " + data.msg);
+            }
             if (data) {
               setToken(data.data);
               resolve(data);

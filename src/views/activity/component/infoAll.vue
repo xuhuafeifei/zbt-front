@@ -33,32 +33,20 @@ import { Picture as IconPicture } from "@element-plus/icons-vue";
     <el-card>
       <el-row>
         <el-card v-for="(item, index) in dataList" :key="index" class="card">
-          <!-- :src="item.picturesUrl.length === 0 ? '' : item.picturesUrl[0].url" -->
-          <div class="block">
-            <el-text>{{ item.name }}</el-text
-            ><br />
-            <el-image
-              :src="
-                item.picturesUrl.length === 0 ? '' : item.picturesUrl[0].url
-              "
-              @click="detail(item)"
-              fit="cover"
-            >
-              <template #error>
-                <div class="image-slot">
-                  <el-icon><icon-picture @click="detail(item)" /></el-icon>
-                </div>
-              </template>
-            </el-image>
-          </div>
-          <!-- <div style="padding: 1px">
-            <span>{{ item.name }}</span>
-            <div class="time">{{ item.uploadTime }}</div>
-            <div class="time">{{ item.applicableGrade }}</div>
-            <el-button text type="primary" @click="detail(item)"
-              >查看详情</el-button
-            >
-          </div> -->
+          <el-text>{{ item.name }}</el-text
+          ><br />
+          <el-image
+            :src="item.picturesUrl.length === 0 ? '' : item.picturesUrl[0].url"
+            @click="detail(item)"
+            fit="cover"
+            style="height: 350px"
+          >
+            <template #error>
+              <div class="image-slot">
+                <el-icon><icon-picture @click="detail(item)" /></el-icon>
+              </div>
+            </template>
+          </el-image>
         </el-card>
       </el-row>
     </el-card>
@@ -76,7 +64,7 @@ import { Picture as IconPicture } from "@element-plus/icons-vue";
 
 .card {
   width: 23%;
-  height: 300px;
+  height: 400px;
   margin-right: 19px;
   margin-bottom: 20px;
 }

@@ -149,7 +149,7 @@ const submitPict = async () => {
   const res = await uploadFileList(data, formData.id, pictType);
   console.log(res);
   if (res.code === 0) {
-    ElMessage.success("上传成功");
+    ElMessage.success("图片上传成功");
     return true;
   } else {
     ElMessage.error("图片上传失败:" + res.msg);
@@ -181,7 +181,7 @@ const submitFile = async () => {
   const res = await uploadFileList(data, formData.id, fileType);
   console.log(res);
   if (res.code === 0) {
-    ElMessage.success("上传成功");
+    ElMessage.success("文件上传成功");
     return true;
   } else {
     ElMessage.error("文件上传失败:" + res.msg);

@@ -1,5 +1,5 @@
 import { http } from "@/utils/http";
-import { activityUrlApi } from "./utils";
+import { R, activityUrlApi } from "./utils";
 
 export type UserResult = {
   success: boolean;
@@ -33,6 +33,36 @@ export type RefreshTokenResult = {
     /** 用户id */
     id: number;
   };
+};
+
+/** 用户信息 */
+export class UserInfoEntity {
+  /** 主键 */
+  id: Number;
+  /** 信息内容 */
+  infoContent: String;
+  /** 关联用户id */
+  userId: Number;
+  /** 信息类型 */
+  infoType: String;
+}
+
+/** 获取用户信息 */
+export const getUserInfoByUserId = (userId: Number, infoType: String) => {
+  return http.request<R<Array<UserInfoEntity>>>(
+    "get",
+    activityUrlApi(
+      `userinfo/listByUserId?userId=${userId}&infoType=${infoType}`
+    )
+  );
+};
+
+
+/** 保存用户信息 */
+export const saveUserInfo = (data: UserInfoEntity) => {
+  return http.request<R<any>>("post", activityUrlApi("userinfo/save"), {
+    data
+  });
 };
 
 /** 登录 */

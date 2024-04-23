@@ -49,6 +49,7 @@ const onLogin = async (formEl: FormInstance | undefined) => {
           password: ruleForm.password
         })
         .then(res => {
+          console.log(res);
           if (res.success) {
             // 获取后端路由
             initRouter().then(() => {
@@ -56,6 +57,8 @@ const onLogin = async (formEl: FormInstance | undefined) => {
               router.push(getTopMenu(true).path);
               message("登录成功", { type: "success" });
             });
+          } else {
+            ElMessage.error("登录失败" + res.msg);
           }
         });
     } else {

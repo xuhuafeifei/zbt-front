@@ -12,74 +12,71 @@
       </el-card>
       <!-- 订单表单 -->
       <el-card style="margin-bottom: 10px" class="box-card">
-        <div class="text item">
-          <span>订单编号：</span>
-          <el-input v-model="orderForm.id" disabled />
-        </div>
-        <div class="text item">
-          <span>订单时间：</span>
-          <el-date-picker v-model="orderForm.orderTime" type="date" disabled />
-        </div>
-        <div class="text item">
-          <span>需要门店：</span>
-          <el-input v-model="orderForm.demandStore" disabled />
-        </div>
-        <div class="text item">
-          <span>需求时间：</span>
-          <el-date-picker v-model="orderForm.demandTime" type="date" disabled />
-        </div>
-        <div class="text item">
-          <span>节日：</span>
-          <el-input v-model="orderForm.festival" disabled />
-        </div>
-        <div class="text item">
-          <span>用途：</span>
-          <el-input v-model="orderForm.useCol" disabled />
-        </div>
-        <div class="text item">
-          <span>专题：</span>
-          <el-input v-model="orderForm.topic" disabled />
-        </div>
-        <div class="text item">
-          <span>品牌：</span>
-          <el-input v-model="orderForm.brand" disabled />
-        </div>
-        <div class="text item">
-          <span>物料:</span>
-          <el-input v-model="orderForm.material" disabled />
-        </div>
-
-        <div class="text item">
-          <span class="info-label">订单状态：</span>
-          <el-input v-model="orderForm.status" disabled />
-        </div>
+        <el-descriptions
+          title="订单信息"
+          direction="vertical"
+          :column="2"
+          border
+        >
+          <el-descriptions-item label="订单编号">{{
+            orderForm.id
+          }}</el-descriptions-item>
+          <el-descriptions-item label="需求门店">{{
+            orderForm.demandStore
+          }}</el-descriptions-item>
+          <el-descriptions-item label="订单时间">{{
+            orderForm.orderTime
+          }}</el-descriptions-item>
+          <el-descriptions-item label="需求时间"
+            >{{ orderForm.demandTime }}
+          </el-descriptions-item>
+          <el-descriptions-item label="节日">{{
+            orderForm.festival
+          }}</el-descriptions-item>
+          <el-descriptions-item label="用途">{{
+            orderForm.useCol
+          }}</el-descriptions-item>
+          <el-descriptions-item label="专题">{{
+            orderForm.topic
+          }}</el-descriptions-item>
+          <el-descriptions-item label="品牌">{{
+            orderForm.brand
+          }}</el-descriptions-item>
+          <el-descriptions-item label="物料">{{
+            orderForm.material
+          }}</el-descriptions-item>
+          <el-descriptions-item label="订单状态">{{
+            orderForm.status
+          }}</el-descriptions-item>
+        </el-descriptions>
       </el-card>
       <!-- 接单表单 -->
       <el-card class="box-card">
-        <div class="info-item">
-          <span class="info-label">接单时间：</span>
-          <el-input v-model="receiveForm.orderReceiveTime" disabled />
-        </div>
-        <div class="info-item">
-          <span class="info-label">设计师：</span>
-          <el-input v-model="receiveForm.designer" disabled />
-        </div>
-        <div class="text item">
-          <span class="info-label">传初稿时间：</span>
-          <el-date-picker v-model="receiveForm.firstDraftTime" disabled />
-        </div>
-        <div class="text item">
-          <span class="info-label">传源文件时间：</span>
-          <el-date-picker v-model="receiveForm.firstSourcefileTime" disabled />
-        </div>
-        <div class="info-item">
-          <span class="info-label">完成时间：</span>
-          <el-input v-model="receiveForm.finishTime" disabled />
-        </div>
-        <div class="info-item">
-          <span class="info-label">联系人电话：</span>
-          <el-input v-model="receiveForm.concatTelephone" disabled />
-        </div>
+        <el-descriptions
+          title="订单信息"
+          direction="vertical"
+          :column="2"
+          border
+        >
+          <el-descriptions-item label="接单时间">{{
+            receiveForm.orderReceiveTime
+          }}</el-descriptions-item>
+          <el-descriptions-item label="设计师">{{
+            receiveForm.designer
+          }}</el-descriptions-item>
+          <el-descriptions-item label="传初稿时间">{{
+            receiveForm.firstDraftTime
+          }}</el-descriptions-item>
+          <el-descriptions-item label="传源文件时间">{{
+            receiveForm.firstDraftTime
+          }}</el-descriptions-item>
+          <el-descriptions-item label="完成时间">{{
+            receiveForm.finishTime
+          }}</el-descriptions-item>
+          <el-descriptions-item label="联系电话">{{
+            receiveForm.concatTelephone
+          }}</el-descriptions-item>
+        </el-descriptions>
       </el-card>
     </el-col>
     <el-col :span="13" :xs="24">
@@ -149,24 +146,22 @@
       </el-card>
 
       <!--回复消息展示-->
-      <el-card style="height: 600px">
-        <el-scrollbar height="550px">
-          <el-card style="margin-bottom: 20px">
-            <div ref="innerRef" class="message-box">
-              <p
-                v-for="(operateRecord, index) in operateRecordList"
-                :key="operateRecord.id"
-              >
-                <OperateRecord
-                  :operate-record="operateRecord"
-                  @refreshDataList="getRecordData"
-                />
-                <!-- <el-divider>the end </el-divider> -->
-              </p>
-            </div>
-          </el-card>
-        </el-scrollbar>
-      </el-card>
+      <el-scrollbar>
+        <el-card style="margin-bottom: 20px">
+          <div ref="innerRef" class="message-box">
+            <p
+              v-for="(operateRecord, index) in operateRecordList"
+              :key="operateRecord.id"
+            >
+              <OperateRecord
+                :operate-record="operateRecord"
+                @refreshDataList="getRecordData"
+              />
+              <!-- <el-divider>the end </el-divider> -->
+            </p>
+          </div>
+        </el-card>
+      </el-scrollbar>
     </el-col>
   </el-row>
   <!-- 接单dialog -->
@@ -413,7 +408,6 @@ const submitPict = async () => {
   for (let i = 0; i < imageList.value.length; ++i) {
     data.append("file", imageList.value[i].raw);
   }
-  debugger;
   const res = await uploadFirstDraft(
     data,
     orderForm.actId,
@@ -422,17 +416,16 @@ const submitPict = async () => {
   );
   console.log(res);
   if (res.code === 0) {
-    ElMessage.success("上传成功");
+    ElMessage.success("图片上传成功");
     // 提交到communicateRecord
     let valueHtml = getPictValueHtml(res.data);
     // 添加remarkHtml
     valueHtml += "<p>" + remark.value + "</p>";
     submitCommunicateRecordByPict(orderForm.id, valueHtml);
-    return true;
   } else {
     ElMessage.error("图片上传失败:" + res.msg);
-    return false;
   }
+  uploadFirstDraftDialogVisible.value = false;
 };
 
 // 根据图片url, 返回对应的html标签内容
@@ -450,11 +443,11 @@ const submitCommunicateRecordByPict = (orderId: Number, valueHtml: String) => {
   saveCommunicateRecord(entity).then(res => {
     console.log(res);
     if (res.code === 0) {
-      ElMessage.success("提交成功");
+      ElMessage.success("沟通记录提交成功");
       // 更新数据
       getRecordData();
     } else {
-      ElMessage.error("提交失败: " + res.msg);
+      ElMessage.error("沟通记录提交失败: " + res.msg);
     }
   });
 };
@@ -477,12 +470,11 @@ const submitSourcefile = async () => {
   );
   console.log(res);
   if (res.code === 0) {
-    ElMessage.success("上传成功");
-    return true;
+    ElMessage.success("文件上传成功");
   } else {
     ElMessage.error("文件上传失败:" + res.msg);
-    return false;
   }
+  uploadSourcefileDialogVisible.value = false;
 };
 
 const handleClickPassDraft = () => {

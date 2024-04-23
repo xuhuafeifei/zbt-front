@@ -35,10 +35,21 @@ const handleEdit = row => {
   });
 };
 
-const handleDelete = row => {
+// 删除行数据
+const deleteRow = row => {
+  console.log(row);
+  deleteActivityDialogVisible.value = true;
+  selectedRow.value = row;
+};
+
+const selectedRow = ref();
+
+const deleteActivityDialogVisible = ref(false);
+
+const handleDelete = () => {
   // 处理删除逻辑
-  console.log("删除", row);
-  deleteById(row.id).then(res => {
+  console.log("删除", selectedRow.value);
+  deleteById(selectedRow.value.id).then(res => {
     if (res.code === 0) {
       ElMessage.success("删除成功");
       getDataList();
@@ -46,6 +57,7 @@ const handleDelete = row => {
       ElMessage.error("删除失败:" + res.msg);
     }
   });
+  deleteActivityDialogVisible.value = false;
 };
 
 const dialogVisible = ref(false);
@@ -146,7 +158,7 @@ const sourceFilesFormatter = (row, column, cellValue, index) => {
         <el-table-column label="操作" fixed="right" width="100">
           <template #default="{ row }">
             <el-button type="text" @click="handleEdit(row)">编辑</el-button>
-            <el-button type="text" @click="handleDelete(row)">删除</el-button>
+            <el-button type="text" @click="deleteRow(row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -167,6 +179,26 @@ const sourceFilesFormatter = (row, column, cellValue, index) => {
         @refreshDataList="getDataList"
       />
     </div>
+    <!--确认删除弹框-->
+    <el-dialog
+      v-model="deleteActivityDialogVisible"
+      title="系统提示"
+      width="30%"
+      draggable
+    >
+      <el-text>是否删除</el-text>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="handleDelete">确定</el-button>
+          <el-button
+            type="primary"
+            @click="deleteActivityDialogVisible = false"
+          >
+            取消
+          </el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 

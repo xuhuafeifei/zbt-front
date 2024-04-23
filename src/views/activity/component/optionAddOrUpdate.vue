@@ -4,7 +4,14 @@ import {
   saveActivityOption,
   updateActivityOption
 } from "@/api/activity/setting";
-import { ref, reactive, defineExpose, onMounted, onUnmounted } from "vue";
+import {
+  ref,
+  reactive,
+  defineExpose,
+  onMounted,
+  onUnmounted,
+  defineEmits
+} from "vue";
 import { convertDateToString } from "@/api/utils";
 import { ElMessage } from "element-plus";
 
@@ -49,6 +56,7 @@ const submit = () => {
         ElMessage.error("添加失败: " + res.msg);
       } else {
         ElMessage.success("添加成功");
+        emit("refreshDataList");
       }
     });
   } else {
@@ -58,9 +66,11 @@ const submit = () => {
         ElMessage.error("修改失败: " + res.msg);
       } else {
         ElMessage.success("修改成功");
+        emit("refreshDataList");
       }
     });
   }
+  dialogVisible.value = false;
 };
 
 //点击回车键登录
@@ -69,6 +79,8 @@ const keyDown = e => {
     submit();
   }
 };
+
+const emit = defineEmits(["refreshDataList"]);
 </script>
 
 <template>

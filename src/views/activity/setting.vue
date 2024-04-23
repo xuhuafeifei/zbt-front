@@ -24,17 +24,28 @@ const edit = row => {
   });
 };
 
+const selectedRow = ref();
+
 const deleteInfo = row => {
   console.log(row);
-  const ids = [row.id];
+  selectedRow.value = row;
+  deleteActivityDialogVisible.value = true;
+};
+
+const deleteActivityDialogVisible = ref(false);
+
+const handleDelete = () => {
+  const ids = [selectedRow.value.id];
   // 删除数据
   deleteActivityOption(ids).then(res => {
     if (res.code !== 0) {
       ElMessage.error("删除失败: " + res.msg);
     } else {
+      ElMessage.success("删除成功");
       search();
     }
   });
+  deleteActivityDialogVisible.value = false;
 };
 
 const handleAdd = () => {
@@ -114,7 +125,31 @@ watch(typeName, (newValue, oldValue) => {
         </template>
       </el-table-column>
     </el-table>
-    <option-add-or-update v-if="dialogVisible" ref="optionAddOrUpdateRef" />
+    <option-add-or-update
+      v-if="dialogVisible"
+      @refreshDataList="search"
+      ref="optionAddOrUpdateRef"
+    />
+    <!--确认删除弹框-->
+    <el-dialog
+      v-model="deleteActivityDialogVisible"
+      title="系统提示"
+      width="30%"
+      draggable
+    >
+      <el-text>是否删除</el-text>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="handleDelete">确定</el-button>
+          <el-button
+            type="primary"
+            @click="deleteActivityDialogVisible = false"
+          >
+            取消
+          </el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 

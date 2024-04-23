@@ -57,11 +57,14 @@ const getOptionList = async () => {
 const sizeChangeHandle = val => {
   pageSize.value = val;
   pageIndex.value = 1;
+  getDataList();
   // getDataList(className.value);
 };
 // 当前页
 const currentChangeHandle = val => {
   pageIndex.value = val;
+  getDataList();
+  // getDataList(className.value);
   // getDataList(className.value);
 };
 

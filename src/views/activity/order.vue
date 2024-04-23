@@ -15,9 +15,10 @@ import { useRouter } from "vue-router";
 import {
   OrderEntity,
   getOrderList,
-  ConditionOrder
+  ConditionOrder,
+  getDemandStore
 } from "@/api/activity/order";
-import { fileType, getStoreUser, pictType } from "@/api/utils";
+import { fileType, getStoreUser, pictType, storeInfoType } from "@/api/utils";
 import { ReceOrderEntity, saveReceOrder } from "@/api/activity/receiveOrder";
 import UploadPict from "@/components/Pict/uploadPict.vue";
 import UploadFile from "@/components/File/uploadFile.vue";
@@ -27,6 +28,7 @@ import {
   CommunicateRecordEntity,
   saveCommunicateRecord
 } from "@/api/activity/communicateRecord";
+import { UserInfoEntity, getUserInfo, getUserInfoByUserId } from "@/api/user";
 
 const router = useRouter();
 const searchText = ref("");
@@ -44,9 +46,10 @@ const role = ref("");
 const currentUserId = ref<Number>();
 
 onMounted(() => {
-  onSearchClick();
   role.value = getStoreUser().roles[0];
   currentUserId.value = parseInt(getStoreUser().id);
+  getAllDemandStore();
+  onSearchClick();
 });
 
 const onSearchClick = () => {
@@ -59,6 +62,7 @@ const onSearchClick = () => {
   co.page = pageIndex.value;
   co.limit = pageSize.value;
   co.status = selected.value;
+  co.demandStore = searchText.value;
   // 如果是普通用户, 只能查看自己的订单
   if (storeUser.role === "user") {
     co.userId = storeUser.id;
@@ -121,11 +125,13 @@ const takeOrderDialogVisible = ref(false);
 const sizeChangeHandle = val => {
   pageSize.value = val;
   pageIndex.value = 1;
+  onSearchClick();
   // getDataList(className.value);
 };
 // 当前页
 const currentChangeHandle = val => {
   pageIndex.value = val;
+  onSearchClick();
   // getDataList(className.value);
 };
 
@@ -214,7 +220,6 @@ const submitPict = async () => {
   for (let i = 0; i < imageList.value.length; ++i) {
     data.append("file", imageList.value[i].raw);
   }
-  debugger;
   const res = await uploadFirstDraft(
     data,
     selectedRow.value.actId,
@@ -223,17 +228,16 @@ const submitPict = async () => {
   );
   console.log(res);
   if (res.code === 0) {
-    ElMessage.success("上传成功");
+    ElMessage.success("图片上传成功");
     // 提交到communicateRecord
     let valueHtml = getPictValueHtml(res.data);
     // 添加remarkHtml
     valueHtml += "<p>" + remark.value + "</p>";
     submitCommunicateRecordByPict(selectedRow.value.id, valueHtml);
-    return true;
   } else {
     ElMessage.error("图片上传失败:" + res.msg);
-    return false;
   }
+  uploadFirstDraftDialogVisible.value = false;
 };
 
 // 根据图片url, 返回对应的html标签内容
@@ -255,9 +259,9 @@ const submitCommunicateRecordByPict = (orderId: Number, valueHtml: String) => {
   saveCommunicateRecord(entity).then(res => {
     console.log(res);
     if (res.code === 0) {
-      ElMessage.success("提交成功");
+      ElMessage.success("沟通记录提交成功");
     } else {
-      ElMessage.error("提交失败: " + res.msg);
+      ElMessage.error("沟通记录提交失败: " + res.msg);
     }
   });
 };
@@ -280,12 +284,21 @@ const submitSourcefile = async () => {
   );
   console.log(res);
   if (res.code === 0) {
-    ElMessage.success("上传成功");
-    return true;
+    ElMessage.success("文件上传成功");
   } else {
     ElMessage.error("文件上传失败:" + res.msg);
-    return false;
   }
+  uploadSourcefileDialogVisible.value = false;
+};
+
+const demandStoreList = ref<Array<String>>();
+
+// 获取用户信息(需求店铺信息)
+const getAllDemandStore = () => {
+  getDemandStore().then(res => {
+    console.log(res);
+    demandStoreList.value = res.data;
+  });
 };
 </script>
 
@@ -293,7 +306,14 @@ const submitSourcefile = async () => {
   <div>
     <el-form inline>
       <el-form-item>
-        <el-input placeholder="请输入搜索内容" v-model="searchText" />
+        <el-select v-model="searchText" value-key="id" placeholder="未选择门店">
+          <el-option
+            v-for="item in demandStoreList"
+            :key="item"
+            :label="item"
+            :value="item"
+          />
+        </el-select>
       </el-form-item>
       <el-form-item>
         <el-select v-model="selected" placeholder="请选择">
